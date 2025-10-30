@@ -88,7 +88,8 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch(GAS_API_URL, {
             method: 'POST',
             body: JSON.stringify(payload),
-            headers: { 'Content-Type': 'text-plain;charset=utf-8' },
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            redirect: 'follow' // <-- ¡¡CAMBIO AÑADIDO!!
         })
         .then(response => response.json())
         .then(data => {
@@ -136,7 +137,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- ¡¡LÓGICA DE GUARDADO ACTUALIZADA!! ---
     document.getElementById('btn-guardar-paso2').addEventListener('click', () => {
         
-        // 1. Mostrar alerta de "Guardando..."
         Swal.fire({
             title: 'Guardando Informe',
             text: 'Por favor espera...',
@@ -147,12 +147,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // 2. Recolectar TODOS los datos del formulario
         const datosPaso2 = {
-            // Datos del Paso 1 (guardados en localStorage)
             datosFlagrancia: JSON.parse(localStorage.getItem('datosFlagrancia')),
-            
-            // Datos del Formulario (Paso 2)
             oficioAnio: document.getElementById('oficio-anio').value,
             oficioNumero: document.getElementById('oficio-numero').value,
             oficioFecha: document.getElementById('oficio-fecha').value,
@@ -162,22 +158,19 @@ document.addEventListener("DOMContentLoaded", () => {
             oficioFiscalUnidad: document.getElementById('oficio-fiscal-unidad').value,
             oficioAgenteNombre: document.getElementById('oficio-agente-nombre').value,
             oficioAgenteGrado: document.getElementById('oficio-agente-grado').value,
-            
-            // Usuario que lo crea
             creadoPor: loggedInUser
         };
 
-        // 3. Crear el payload para enviar a Google Apps Script
         const payload = {
             action: "guardarDatosPaso2",
             datos: datosPaso2
         };
 
-        // 4. Enviar los datos al backend
         fetch(GAS_API_URL, {
             method: 'POST',
             body: JSON.stringify(payload),
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            redirect: 'follow' // <-- ¡¡CAMBIO AÑADIDO!!
         })
         .then(response => response.json())
         .then(data => {
@@ -188,13 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     text: `El informe ha sido guardado con el ID: ${data.reportId}`,
                     customClass: swalDark
                 });
-                
-                // Guardamos el ID del informe para los siguientes pasos
                 localStorage.setItem('currentReportId', data.reportId);
-                
-                // (En el futuro, aquí ocultaríamos el Paso 2 y mostraríamos el Paso 3)
-                // Por ahora, solo cerramos la alerta.
-
             } else {
                 Swal.fire({ icon: 'error', title: 'Error al Guardar', text: data.message, customClass: swalDark });
             }
@@ -204,7 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
             Swal.fire({ icon: 'error', title: 'Error de Conexión', text: 'No se pudo guardar el informe.', customClass: swalDark });
         });
     });
-
 
     /**
      * Rellena el formulario del Paso 2 con los datos del localStorage.
@@ -219,22 +205,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById('oficio-anio').value = new Date().getFullYear();
         document.getElementById('oficio-fecha').value = formatearFecha(new Date());
-
-        // --- AUTORELLENO ACTUALIZADO (Punto 4) ---
-        // Rellena los campos pero NO los bloquea
         document.getElementById('oficio-fiscal-nombre').value = datos.fiscal.trim();
         document.getElementById('oficio-fiscal-unidad').value = datos.unidad_fiscalia.trim();
-
-        // (Punto 5)
         document.getElementById('cuerpo-if-nro').textContent = datos.if_number;
         document.getElementById('cuerpo-detenido-nombre').textContent = datos.detenido.trim();
         document.getElementById('cuerpo-delito-nombre').textContent = datos.delito.trim();
-
-        // (Punto 6)
         document.getElementById('oficio-agente-nombre').value = datos.agente.trim();
+        
         const gradoSelect = document.getElementById('oficio-agente-grado');
         const gradoAgente = datos.grado.trim().toUpperCase();
-        
         let gradoEncontrado = false;
         for (let i = 0; i < gradoSelect.options.length; i++) {
             if (gradoSelect.options[i].value === gradoAgente) {
@@ -250,7 +229,6 @@ document.addEventListener("DOMContentLoaded", () => {
         
         actualizarCuerpoOficio();
 
-        // "Listeners" para que el cuerpo se actualice si el usuario edita
         document.getElementById('oficio-anio').addEventListener('input', actualizarCuerpoOficio);
         document.getElementById('oficio-numero').addEventListener('input', actualizarCuerpoOficio);
         document.getElementById('oficio-fecha').addEventListener('input', actualizarCuerpoOficio);
@@ -267,7 +245,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('cuerpo-oficio-nro').textContent = `PN-ZONA8-JINVPJ-UDF-${anio}-${numero}`;
         document.getElementById('cuerpo-oficio-fecha').textContent = fecha;
     }
-
 
     /**
      * Formatea la fecha al estilo "Guayaquil, 03 de octubre del 2025"
