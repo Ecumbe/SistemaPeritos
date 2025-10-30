@@ -2,7 +2,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     
     // --- 0. URL DE LA API (DEBE COINCIDIR CON login.js) ---
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxEoCUDULpDjzYKQIWe5wNlNaV8apLx035sy1T-LQTrpl2e59YH0i0n2LlJjIOovIuF/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxpuP-EfinUd91iSxbxJATfBPaw30eVj0AFXWpXQl10Kwqq3-jRPkbNoTpc8DXz903j/exec";
 
     // --- 1. VERIFICACIÓN DE SEGURIDAD ---
     const loggedInUser = localStorage.getItem("sistemaPeritosUser");
@@ -272,3 +272,4 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 });
+
