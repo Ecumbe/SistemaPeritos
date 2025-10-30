@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- ¡¡¡IMPORTANTE!!! ---
     // Pega aquí la URL de tu API de Google Apps Script que guardaste.
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxEoCUDULpDjzYKQIWe5wNlNaV8apLx035sy1T-LQTrpl2e59YH0i0n2LlJjIOovIuF/exec"; // 👈 REEMPLAZA ESTO
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxpuP-EfinUd91iSxbxJATfBPaw30eVj0AFXWpXQl10Kwqq3-jRPkbNoTpc8DXz903j/exec"; // 👈 REEMPLAZA ESTO
 
     // Seleccionamos los elementos del formulario
     const loginForm = document.getElementById("login-form");
@@ -133,4 +133,5 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error('Error en el fetch:', error);
         });
     });
+
 });
