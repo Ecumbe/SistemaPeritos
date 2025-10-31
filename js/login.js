@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- ¡¡¡IMPORTANTE!!! ---
     // Pega aquí la URL de tu API de Google Apps Script que guardaste.
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxM_jixHkd7L8wRliduLWh9V7EoXqmEuQ05_IVAHNBAVeRlaR4agbyoNuo120bs_VtH/exec"; // 👈 REEMPLAZA ESTO
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzZorOIGmW2hijo4g4ydwdegqESyvW0iWSDovlnbtIPAia8snyAz06Y97SSX-gg10LX7g/exec"; // 👈 REEMPLAZA ESTO
 
     // Seleccionamos los elementos del formulario
     const loginForm = document.getElementById("login-form");
@@ -135,4 +135,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 });
+
 
