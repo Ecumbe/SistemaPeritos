@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- ¡¡¡IMPORTANTE!!! ---
     // Pega aquí la URL de tu API de Google Apps Script que guardaste.
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzZorOIGmW2hijo4g4ydwdegqESyvW0iWSDovlnbtIPAia8snyAz06Y97SSX-gg10LX7g/exec"; // 👈 REEMPLAZA ESTO
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyOJRwHdoEVvVEXuSYn9znm3jzLwmNrHJhlWZ_qAwQzU7sq5VOYPNM2NTBsTTp_8SWAcg/exec"; // 👈 REEMPLAZA ESTO
 
     // Seleccionamos los elementos del formulario
     const loginForm = document.getElementById("login-form");
@@ -86,20 +86,24 @@ document.addEventListener("DOMContentLoaded", () => {
             if (data.status === "success") {
                 // ¡Éxito!
                 Swal.fire({
-                    icon: 'success',
-                    title: `¡Bienvenido, ${data.user}!`,
+                    // --- [MODIFICADO] ---
+                    title: `¡Bienvenido, ${data.nombreCompleto}!`, // Ahora usa el nombre completo
+                    // --- [FIN DE LA MODIFICACIÓN] ---
                     text: 'Serás redirigido en un momento.',
                     timer: 2000,
                     showConfirmButton: false,
                     customClass: swalCustomClasses
                 });
                 
-                // Guardamos el nombre de usuario en el navegador para usarlo en la app
-                localStorage.setItem("sistemaPeritosUser", data.user);
+                // --- [MODIFICADO] ---
+                // Guardamos AMBOS datos en el navegador
+                localStorage.setItem("sistemaPeritosUser", data.user); // El username (ej: perito1)
+                localStorage.setItem("sistemaPeritosFullName", data.nombreCompleto); // El nombre (ej: Néstor Vargas)
+                // --- [FIN DE LA MODIFICACIÓN] ---
 
                 // Redirigimos a la página principal de la app
                 setTimeout(() => {
-                    window.location.href = "app.html"; // Aún no la hemos creado
+                    window.location.href = "app.html";
                 }, 2000);
 
             } else {
@@ -135,4 +139,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 });
-
