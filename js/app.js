@@ -2,11 +2,19 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     // --- 0. URL DE LA API ---
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzZorOIGmW2hijo4g4ydwdegqESyvW0iWSDovlnbtIPAia8snyAz06Y97SSX-gg10LX7g/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyOJRwHdoEVvVEXuSYn9znm3jzLwmNrHJhlWZ_qAwQzU7sq5VOYPNM2NTBsTTp_8SWAcg/exec"; // 👈 REEMPLAZA ESTO
+
+    // Guardamos la URL en localStorage para que 'editar-informe.js' pueda usarla
+    localStorage.setItem("GAS_API_URL", GAS_API_URL);
+
+    // --- Constantes de Estilo ---
+    const swalDark = { popup: 'bg-dark text-white', title: 'text-white', content: 'text-white-50' };
 
     // --- 1. VERIFICACIÓN DE SEGURIDAD ---
-    const loggedInUser = localStorage.getItem("sistemaPeritosUser");
-    if (!loggedInUser) {
+    const loggedInUser = localStorage.getItem("sistemaPeritosUser"); 
+    const loggedInFullName = localStorage.getItem("sistemaPeritosFullName"); 
+
+    if (!loggedInUser || !loggedInFullName) {
         alert("Acceso denegado. Debes iniciar sesión.");
         window.location.href = "index.html";
         return;
@@ -14,7 +22,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- 2. PERSONALIZACIÓN DE LA PÁGINA ---
     const userGreeting = document.getElementById("user-greeting");
-    userGreeting.innerHTML = `<i class="fa-solid fa-user-check"></i> Bienvenido, <strong>${loggedInUser}</strong>`;
+    userGreeting.innerHTML = `<i class="fa-solid fa-user-check"></i> Bienvenido, <strong>${loggedInFullName}</strong>`;
+    const reportCountSpan = document.getElementById("report-count");
+
+    // --- Cargar estadísticas del usuario al inicio ---
+    (async function loadUserStats() {
+        try {
+            const payload = {
+                action: "getUserStats",
+                user: loggedInUser 
+            };
+            const response = await fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                redirect: 'follow'
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                reportCountSpan.textContent = String(data.reportCount).padStart(2, '0');
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            console.error("Error al cargar estadísticas:", error);
+            reportCountSpan.textContent = "Error";
+        }
+    })();
 
     // --- 3. LÓGICA de CERRAR SESIÓN ---
     const btnLogout = document.getElementById("btn-logout");
@@ -28,10 +62,12 @@ document.addEventListener("DOMContentLoaded", () => {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Sí, cerrar sesión',
             cancelButtonText: 'Cancelar',
-            customClass: { popup: 'bg-dark text-white', title: 'text-white', content: 'text-white-50' }
+            customClass: swalDark
         }).then((result) => {
             if (result.isConfirmed) {
                 localStorage.removeItem("sistemaPeritosUser");
+                localStorage.removeItem("sistemaPeritosFullName");
+                localStorage.removeItem("GAS_API_URL"); 
                 window.location.href = "index.html";
             }
         });
@@ -41,14 +77,121 @@ document.addEventListener("DOMContentLoaded", () => {
        LÓGICA PESTAÑA "BUSCAR"
        ========================================================== */
     const searchForm = document.getElementById("search-form");
+    const searchTermInput = document.getElementById("search-term");
+    const searchLoader = document.getElementById("search-loader");
     const searchResultsContainer = document.getElementById("search-results-container");
+    const searchResultsTbody = document.getElementById("search-results-tbody");
+    
     if (searchForm) {
-        searchForm.addEventListener("submit", (e) => {
+        searchForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            console.log("Buscando...");
-            searchResultsContainer.style.display = "block";
+            const searchTerm = searchTermInput.value.trim();
+            if (!searchTerm) return;
+
+            console.log(`Buscando: ${searchTerm}`);
+            searchLoader.classList.remove('d-none');
+            searchResultsContainer.style.display = "none";
+            searchResultsTbody.innerHTML = ""; 
+
+            const payload = {
+                action: "buscarInformes",
+                searchTerm: searchTerm,
+                user: loggedInUser 
+            };
+
+            try {
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    redirect: 'follow'
+                });
+                const data = await response.json();
+                
+                searchLoader.classList.add('d-none');
+                
+                if (data.status === 'success') {
+                    renderSearchResults(data.results);
+                } else {
+                    throw new Error(data.message || "Error desconocido en el servidor.");
+                }
+
+            } catch (error) {
+                console.error('Error en la búsqueda:', error);
+                searchLoader.classList.add('d-none');
+                Swal.fire({ 
+                    icon: 'error', 
+                    title: 'Error de Búsqueda', 
+                    text: error.message, 
+                    customClass: swalDark 
+                });
+            }
         });
     }
+
+    /**
+     * Dibuja los resultados en la tabla de búsqueda
+     */
+    function renderSearchResults(results) {
+        searchResultsTbody.innerHTML = ""; 
+        
+        if (results.length === 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td colspan="6" class="text-center text-white-50">No se encontraron informes.</td>`;
+            searchResultsTbody.appendChild(tr);
+        } else {
+            results.forEach(report => {
+                const tr = document.createElement('tr');
+                const escape = (str) => String(str).replace(/[&<>"']/g, m => ({'&': '&amp;','<': '&lt;','>': '&gt;','"': '&quot;',"'": '&#39;'})[m]);
+
+                tr.innerHTML = `
+                    <td>${escape(report.tabla_if_nro)}</td>
+                    <td>${escape(report.reporte_id)}</td>
+                    <td>${escape(report.detenido)}</td>
+                    <td>${escape(report.fecha_creacion)}</td>
+                    <td>${escape(report.creado_por)}</td>
+                    <td>
+                        <button class="btn btn-info btn-sm me-1 btn-edit-report" data-report-id="${escape(report.reporte_id)}" title="Editar">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm me-1 btn-pdf-report" data-report-id="${escape(report.reporte_id)}" title="Visualizar (PDF)">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </button>
+                        <button class="btn btn-primary btn-sm btn-word-report" data-report-id="${escape(report.reporte_id)}" title="Descargar (WORD)">
+                            <i class="fa-solid fa-file-word"></i>
+                        </button>
+                    </td>
+                `;
+                searchResultsTbody.appendChild(tr);
+            });
+        }
+        searchResultsContainer.style.display = "block"; 
+    }
+
+    /**
+     * Event Listener para los botones dinámicos de la tabla (PDF/Word/Editar)
+     */
+    searchResultsTbody.addEventListener('click', (e) => {
+        const button = e.target.closest('button');
+        if (!button) return;
+
+        const reportId = button.dataset.reportId;
+        if (!reportId) return;
+
+        if (button.classList.contains('btn-pdf-report')) {
+            generarDocumento('pdf', reportId);
+        } else if (button.classList.contains('btn-word-report')) {
+            generarDocumento('word', reportId);
+        } else if (button.classList.contains('btn-edit-report')) {
+            console.log(`Abriendo editor para: ${reportId}`);
+            window.open(`editar-informe.html?id=${reportId}`, '_blank');
+        }
+    });
+
+    /* ==========================================================
+       FIN DE LA SECCIÓN "BUSCAR"
+       ========================================================== */
+
 
     /* ==========================================================
        LÓGICA DEL WIZARD "NUEVO INFORME"
@@ -58,7 +201,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const step2Div = document.getElementById('wizard-step-2');
     const step3Div = document.getElementById('wizard-step-3');
     const step4Div = document.getElementById('wizard-step-4');
-    const swalDark = { popup: 'bg-dark text-white', title: 'text-white', content: 'text-white-50' };
 
     // --- Lógica del PASO 1: Búsqueda (COMPLETA) ---
     const searchBtn = document.getElementById("if-search-btn");
@@ -98,6 +240,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         <p class="result-item"><strong>Fiscal:</strong> ${d.fiscal}</p>
                         <p class="result-item"><strong>Unidad Fiscalía:</strong> ${d.unidad_fiscalia}</p>
                         <p class="result-item"><strong>Agente:</strong> ${d.grado} ${d.agente}</p>
+                        <p class="result-item"><strong>Fecha Infracción:</strong> ${d.fecha_infraccion}</p>
+                        <p class="result-item"><strong>Fecha Delegación:</strong> ${d.fecha_delegacion}</p>
                     `;
                     resultsCard.classList.remove('d-none');
                     btnContinuarPaso1.classList.remove('d-none');
@@ -133,7 +277,7 @@ document.addEventListener("DOMContentLoaded", () => {
         step2Div.classList.add('d-none');
         step3Div.classList.remove('d-none');
         step4Div.classList.add('d-none');
-        popularFormularioPaso3();
+        popularFormularioPaso3(); 
     });
     document.getElementById('btn-regresar-paso2').addEventListener('click', () => {
         step1Div.classList.add('d-none');
@@ -161,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
         step4Div.classList.remove('d-none');
     }
     document.getElementById('btn-regresar-paso3').addEventListener('click', () => {
-        showNavButtons(); // <-- [NUEVO] Ocultar botones post-save si regresa
+        showNavButtons(); 
         step1Div.classList.add('d-none');
         step2Div.classList.add('d-none');
         step3Div.classList.remove('d-none');
@@ -201,45 +345,36 @@ document.addEventListener("DOMContentLoaded", () => {
     const templateLamina = document.getElementById('template-lamina');
     const templateFoto = document.getElementById('template-foto');
 
-    // --- [MODIFICADO] Selectores de botones del Paso 4 ---
-    // Ya no usamos los DIVs contenedores, seleccionamos los botones directamente
+    // --- Selectores de botones del Paso 4 ---
     const btnRegresarPaso3 = document.getElementById('btn-regresar-paso3');
     const btnGuardarYSubir = document.getElementById('btn-guardar-y-subir-fotos');
     const btnNuevoInforme = document.getElementById('btn-nuevo-informe');
     const btnImprimirDocumento = document.getElementById('btn-imprimir-documento');
-    // --- FIN DE LA MODIFICACIÓN ---
 
     // --- Variable global para guardar el ID del reporte
     let currentReportId = null; 
 
-    // --- [MODIFICADO] Funciones para mostrar/ocultar botones del Paso 4
+    // --- Funciones para mostrar/ocultar botones del Paso 4
     function showNavButtons() {
-        // Muestra los botones de navegación estándar
         btnRegresarPaso3.classList.remove('d-none');
         btnGuardarYSubir.classList.remove('d-none');
-        
-        // Oculta los botones post-guardado
         btnNuevoInforme.classList.add('d-none');
         btnImprimirDocumento.classList.add('d-none');
-        
-        currentReportId = null; // Si se muestran los botones de nav, se anula el ID guardado (requiere nuevo guardado)
+        currentReportId = null; 
     }
     
     function showPostSaveButtons(reportId) {
-        // Muestra TODOS los botones
         btnRegresarPaso3.classList.remove('d-none');
         btnGuardarYSubir.classList.remove('d-none');
         btnNuevoInforme.classList.remove('d-none');
         btnImprimirDocumento.classList.remove('d-none');
-        
-        currentReportId = reportId; // Guardamos el ID para usarlo en la impresión
+        currentReportId = reportId; 
     }
-    // --- FIN DE LA MODIFICACIÓN ---
 
 
-    // --- [MODIFICADO] Detectar cambios para revertir botones ---
+    // --- Detectar cambios para revertir botones ---
     document.getElementById('btn-agregar-lugar').addEventListener('click', () => {
-        showNavButtons(); // <-- [CORREGIDO] Esto ahora funciona
+        showNavButtons(); 
         const laminaClone = templateLamina.content.cloneNode(true);
         laminasContainer.appendChild(laminaClone);
         updateLaminaNumbers();
@@ -248,19 +383,21 @@ document.addEventListener("DOMContentLoaded", () => {
     laminasContainer.addEventListener('click', (e) => {
         // eliminar lamina
         if (e.target.closest('.btn-eliminar-lamina')) {
-            showNavButtons(); // <-- Revertir botones si se edita
+            showNavButtons(); 
             e.target.closest('.lamina-card').remove();
             updateLaminaNumbers();
         }
         // eliminar foto
         if (e.target.closest('.btn-eliminar-foto')) {
-            showNavButtons(); // <-- Revertir botones si se edita
+            showNavButtons(); 
             const laminaCard = e.target.closest('.lamina-card');
             e.target.closest('.foto-card').remove();
             updatePhotoNumbers(laminaCard);
         }
-        // editar foto con PhotoEditor
+        
+        // Botón Editar Foto
         if (e.target.closest('.btn-editar-foto')) {
+            showNavButtons();
             const fotoCard = e.target.closest('.foto-card');
             const img = fotoCard.querySelector('.foto-preview');
             const descripcion = fotoCard.querySelector('.foto-descripcion');
@@ -268,7 +405,6 @@ document.addEventListener("DOMContentLoaded", () => {
             PhotoEditor.open({
                 imgEl: img,
                 onSave: ({ description }) => {
-                    showNavButtons(); // <-- Revertir botones si se edita
                     descripcion.value = description || "";
                     const resumenBtn = fotoCard.querySelector('.btn-agregar-descripcion');
                     if (descripcion.value.trim() !== "") {
@@ -279,11 +415,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
         }
+        
+        // Botón Agregar Descripción
+        if (e.target.closest('.btn-agregar-descripcion')) {
+            showNavButtons();
+            const fotoCard = e.target.closest('.foto-card');
+            const descripcion = fotoCard.querySelector('.foto-descripcion');
+            const btn = e.target.closest('.btn-agregar-descripcion');
+
+            descripcion.classList.toggle('d-none');
+            
+            if (!descripcion.classList.contains('d-none')) {
+                descripcion.focus();
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Ocultar Descripción';
+            } else {
+                if (descripcion.value.trim() !== "") {
+                    btn.textContent = descripcion.value.substring(0, 40) + "…";
+                } else {
+                    btn.textContent = "+ Agregar Descripción";
+                }
+            }
+        }
     });
 
     laminasContainer.addEventListener('change', (e) => {
         if (e.target.classList.contains('lamina-file-input')) {
-            showNavButtons(); // <-- Revertir botones si se edita
+            showNavButtons(); 
             handleFileInputChange(e);
         }
     });
@@ -294,40 +451,103 @@ document.addEventListener("DOMContentLoaded", () => {
         const laminaNum = event.target.closest('.lamina-card').querySelector('.lamina-numero').textContent;
 
         for (const file of files) {
-            const fotoClone = templateFoto.content.cloneNode(true);
-            const fotoCard = fotoClone.querySelector('.foto-card');
-            const previewImg = fotoCard.querySelector('.foto-preview');
-            const spinner = fotoCard.querySelector('.foto-spinner');
-            const titleInput = fotoCard.querySelector('.foto-title-input');
-
-            spinner.classList.remove('d-none');
-            const photoCount = fotosContainer.querySelectorAll('.foto-card').length;
-            titleInput.value = `Fotografía N° ${photoCount + 1}`;
-            fotosContainer.appendChild(fotoClone);
-            fotoCard.dataset.laminaNum = laminaNum;
-
-            try {
-                let fileToProcess = file;
-                const maxSizeInBytes = 1 * 1024 * 1024;
-                if (file.size > maxSizeInBytes) {
-                    spinner.querySelector('.ms-2').textContent = 'Comprimiendo...';
-                    const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
-                    fileToProcess = await imageCompression(file, options);
-                } else {
-                    spinner.querySelector('.ms-2').textContent = 'Procesando...';
-                }
-
-                const dataURL = await imageCompression.getDataUrlFromFile(fileToProcess);
-                previewImg.src = dataURL;
-                previewImg.dataset.base64 = dataURL;
-                spinner.classList.add('d-none');
-
-            } catch (error) {
-                console.error(error);
-                spinner.textContent = 'Error al procesar';
-            }
+            await processAndDisplayImage(file, fotosContainer, laminaNum);
         }
     }
+
+    // --- [INICIO: LÓGICA PARA PEGAR (MODIFICADA)] ---
+    /**
+     * Procesa un archivo de imagen (de portapapeles o input) y lo añade
+     */
+    async function processAndDisplayImage(file, fotosContainer, laminaNum) {
+        const fotoClone = templateFoto.content.cloneNode(true);
+        const fotoCard = fotoClone.querySelector('.foto-card');
+        const previewImg = fotoCard.querySelector('.foto-preview');
+        const spinner = fotoCard.querySelector('.foto-spinner');
+        const titleInput = fotoCard.querySelector('.foto-title-input');
+
+        spinner.classList.remove('d-none');
+        const photoCount = fotosContainer.querySelectorAll('.foto-card').length;
+        titleInput.value = `Fotografía N° ${photoCount + 1}`;
+        fotosContainer.appendChild(fotoClone);
+        fotoCard.dataset.laminaNum = laminaNum;
+
+        try {
+            let fileToProcess = file;
+            const maxSizeInBytes = 1 * 1024 * 1024; // 1MB
+            if (file.size > maxSizeInBytes) {
+                spinner.querySelector('.ms-2').textContent = 'Comprimiendo...';
+                const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
+                fileToProcess = await imageCompression(file, options);
+            } else {
+                spinner.querySelector('.ms-2').textContent = 'Procesando...';
+            }
+
+            const dataURL = await imageCompression.getDataUrlFromFile(fileToProcess);
+            previewImg.src = dataURL;
+            previewImg.dataset.base64 = dataURL;
+            spinner.classList.add('d-none');
+            showNavButtons(); // Marcar como "cambio"
+
+        } catch (error) {
+            console.error(error);
+            spinner.textContent = 'Error al procesar';
+        }
+    }
+
+    /**
+     * Escucha el evento de pegar (Ctrl+V)
+     */
+    document.addEventListener('paste', (e) => {
+        // --- [INICIO DE LA CORRECCIÓN] ---
+        // 1. Si el usuario está pegando en un campo de texto, ignorar
+        const targetTag = e.target.tagName;
+        if (targetTag === 'INPUT' || targetTag === 'TEXTAREA') {
+            return; // Dejar que el navegador pegue el texto
+        }
+        // --- [FIN DE LA CORRECCIÓN] ---
+
+        // 2. Validar que estemos en el Paso 4
+        if (step4Div.classList.contains('d-none')) {
+            return; // No estamos en el paso 4, ignorar
+        }
+        
+        // 3. Validar que haya una lámina
+        const ultimaLamina = laminasContainer.querySelector('.lamina-card:last-of-type');
+        if (!ultimaLamina) {
+            Swal.fire({ 
+                icon: 'warning', 
+                title: 'No hay lámina', 
+                text: 'Por favor, agregue una lámina primero antes de pegar imágenes.', 
+                customClass: swalDark 
+            });
+            return;
+        }
+
+        // 4. Obtener contenedor de fotos de la última lámina
+        const fotosContainer = ultimaLamina.querySelector('.lamina-fotos-container');
+        const laminaNum = ultimaLamina.querySelector('.lamina-numero').textContent;
+
+        // 5. Obtener archivos del portapapeles
+        const items = e.clipboardData.items;
+        let foundImage = false;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const file = items[i].getAsFile();
+                if (file) {
+                    foundImage = true;
+                    // Procesar la imagen pegada
+                    processAndDisplayImage(file, fotosContainer, laminaNum);
+                }
+            }
+        }
+
+        if (foundImage) {
+            e.preventDefault(); // Evitar que el navegador pegue la imagen en otro lado
+        }
+    });
+    // --- [FIN: LÓGICA PARA PEGAR (MODIFICADA)] ---
+
 
     function updateLaminaNumbers() {
         const allLaminas = laminasContainer.querySelectorAll('.lamina-card');
@@ -368,15 +588,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 Swal.update({ title: 'Subiendo Fotos...', text: `Etapa 2 de 2: ${photos.length} fotos.` });
                 await uploadAllPhotos(reportId, photos);
             }
+            
+            // Actualizar contador
+            const currentCount = parseInt(reportCountSpan.textContent, 10) || 0;
+            reportCountSpan.textContent = String(currentCount + 1).padStart(2, '0');
 
             Swal.fire({
                 icon: 'success',
                 title: '¡Informe Guardado!',
-                text: `Informe ${reportId} guardado correctamente.`,
+                text: `Informe ${reportId} guardado/actualizado correctamente.`,
                 customClass: swalDark
             }).then((result) => {
                 if (result.isConfirmed) {
-                    showPostSaveButtons(reportId); // <-- Mostrar botones "Nuevo" e "Imprimir" (y los estándar)
+                    showPostSaveButtons(reportId); 
                 }
             });
 
@@ -398,7 +622,7 @@ document.addEventListener("DOMContentLoaded", () => {
             oficioFiscalUnidad: document.getElementById('oficio-fiscal-unidad').value,
             oficioAgenteNombre: document.getElementById('oficio-agente-nombre').value,
             oficioAgenteGrado: document.getElementById('oficio-agente-grado').value,
-            creadoPor: loggedInUser
+            creadoPor: loggedInUser 
         };
         const datosCuerpo = {
             tabla_if_nro: document.getElementById('tabla-if-nro').value,
@@ -460,6 +684,12 @@ document.addEventListener("DOMContentLoaded", () => {
     async function uploadAllPhotos(reportId, photos) {
         for (let i = 0; i < photos.length; i++) {
             const photo = photos[i];
+            
+            if (!photo.base64 || !photo.base64.startsWith('data:image')) {
+                console.warn(`Omitiendo foto ${i+1} (datos base64 inválidos)`);
+                continue; 
+            }
+
             Swal.update({
                 text: `Etapa 2 de 2: Subiendo foto ${i + 1} de ${photos.length} (Lámina ${photo.laminaNum}).`
             });
@@ -521,7 +751,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btnImprimirDocumento.addEventListener('click', () => {
         if (!currentReportId) {
-            Swal.fire({ icon: 'error', title: 'Error', text: 'No se encontró el ID del informe guardado.', customClass: swalDark });
+            Swal.fire({ icon: 'error', title: 'Error', text: 'No se encontró el ID del informe guardado. Vuelve a guardar.', customClass: swalDark });
             return;
         }
         handlePrintMenu(currentReportId);
@@ -536,8 +766,8 @@ document.addEventListener("DOMContentLoaded", () => {
             confirmButtonText: `<i class="fa-solid fa-file-pdf"></i> Generar PDF`,
             denyButtonText: `<i class="fa-solid fa-file-word"></i> Descargar WORD`,
             cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#d33', // Rojo para PDF
-            denyButtonColor: '#3085d6', // Azul para Word
+            confirmButtonColor: '#d33', 
+            denyButtonColor: '#3085d6', 
             customClass: swalDark
         }).then((result) => {
             if (result.isConfirmed) {
@@ -547,26 +777,51 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-
+    
     async function generarDocumento(format, reportId) {
         Swal.fire({
             title: `Generando ${format.toUpperCase()}...`,
-            text: 'Esto puede tomar un momento...',
+            text: 'Esto puede tomar un momento, el servidor está ensamblando el documento...',
             allowOutsideClick: false,
             customClass: swalDark,
             didOpen: () => Swal.showLoading()
         });
 
-        // --- ¡¡¡PENDIENTE!!! ---
-        setTimeout(() => {
-             Swal.fire({
+        try {
+            const payload = {
+                action: "generarDocumento",
+                reportId: reportId,
+                format: format,
+                user: loggedInUser 
+            };
+            
+            const response = await fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                redirect: 'follow'
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                Swal.close(); 
+                downloadFileFromBase64(data.base64Data, data.fileName, data.mimeType, format);
+            } else {
+                throw new Error(data.message || "Error desconocido en el backend.");
+            }
+
+        } catch (error) {
+            console.error('Error en generarDocumento:', error);
+            Swal.fire({
                 icon: 'error',
-                title: 'Función Pendiente',
-                text: 'La generación de documentos (PDF/WORD) aún no está implementada en el backend (Codigo.gs).',
+                title: 'Error de Conexión',
+                text: `No se pudo generar el documento: ${error.message}`,
                 customClass: swalDark
             });
-        }, 1500);
+        }
     }
+    
     
     function resetWizard() {
         document.getElementById('if-search-input').value = '';
@@ -589,7 +844,7 @@ document.addEventListener("DOMContentLoaded", () => {
         laminasContainer.innerHTML = '';
         updateLaminaNumbers();
 
-        showNavButtons(); // <-- Restaura solo los botones de navegación
+        showNavButtons(); 
         
         step1Div.classList.remove('d-none');
         step2Div.classList.add('d-none');
@@ -598,27 +853,27 @@ document.addEventListener("DOMContentLoaded", () => {
         
         new bootstrap.Tab(document.getElementById('nuevo-tab')).show();
 
-        popularFormularioPaso2(true); 
+        popularFormularioPaso2(true); // Llamar con isReset para limpiar
         popularFormularioPaso3(); 
     }
 
 
-    // --- FUNCIONES DE AYUDA DEL WIZARD (COMPLETAS) ---
+    // --- FUNCIONES DE AYUDA DEL WIZARD ---
     
     function popularFormularioPaso2(isReset = false) {
         const datos = JSON.parse(localStorage.getItem('datosFlagrancia'));
         
         if (!isReset) { 
             if (!datos) {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'No se encontraron datos de flagrancia.', customClass: swalDark });
-                document.getElementById('btn-regresar-paso1').click();
+                // No mostramos alerta si es un reset, solo si falla la carga inicial
+                if (!isReset) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'No se encontraron datos de flagrancia.', customClass: swalDark });
+                    document.getElementById('btn-regresar-paso1').click();
+                }
                 return;
             }
             document.getElementById('oficio-fiscal-nombre').value = datos.fiscal;
             document.getElementById('oficio-fiscal-unidad').value = datos.unidad_fiscalia;
-            document.getElementById('cuerpo-if-nro').textContent = datos.if_number;
-            document.getElementById('cuerpo-detenido-nombre').textContent = datos.detenido.trim();
-            document.getElementById('cuerpo-delito-nombre').textContent = datos.delito.trim();
             document.getElementById('oficio-agente-nombre').value = datos.agente.trim();
 
             const gradoSelect = document.getElementById('oficio-agente-grado');
@@ -638,9 +893,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } else { 
             document.getElementById('oficio-fiscal-nombre').value = '';
             document.getElementById('oficio-fiscal-unidad').value = '';
-            document.getElementById('cuerpo-if-nro').textContent = '...';
-            document.getElementById('cuerpo-detenido-nombre').textContent = '...';
-            document.getElementById('cuerpo-delito-nombre').textContent = '...';
             document.getElementById('oficio-agente-nombre').value = '';
             document.getElementById('oficio-agente-grado').selectedIndex = 0;
         }
@@ -651,15 +903,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const step2Inputs = document.querySelectorAll('#wizard-step-2 input, #wizard-step-2 select');
         step2Inputs.forEach(input => {
             input.removeEventListener('input', showNavButtons); 
-            input.addEventListener('input', showNavButtons); // <-- Cualquier cambio en el Paso 2 oculta los botones post-save
+            input.addEventListener('input', showNavButtons); 
             
-            if (['oficio-anio', 'oficio-numero', 'oficio-fecha'].includes(input.id)) {
+            if (['oficio-anio', 'oficio-numero', 'oficio-fecha', 'oficio-asunto-numero'].includes(input.id)) {
                  input.removeEventListener('input', actualizarCuerpoOficio);
                  input.addEventListener('input', actualizarCuerpoOficio);
             }
         });
 
-        actualizarCuerpoOficio();
+        actualizarCuerpoOficio(); // Asegurarse de que se llame al final
     }
 
     function popularFormularioPaso3() {
@@ -681,15 +933,15 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('tabla-procesado').value = datosFlag.detenido;
             document.getElementById('tabla-ref-oficio').value = `FPG-FEIFO${refOficioNum}`;
             document.getElementById('tabla-perito').value = `${agenteGrado} DE POLICIA ${agenteNombre}`;
+
+            // --- [INICIO: MODIFICACIÓN] ---
+            const fechaActualFormateada = formatearFecha(new Date());
+            document.getElementById('tabla-fecha-aprehension').value = datosFlag.fecha_infraccion || fechaActualFormateada;
+            document.getElementById('informe-fecha-referencia').value = datosFlag.fecha_delegacion || fechaActualFormateada;
+            // --- [FIN: MODIFICACIÓN] ---
         }
 
-        const fechaActualFormateada = formatearFecha(new Date());
-        if (!document.getElementById('tabla-fecha-aprehension').value)
-            document.getElementById('tabla-fecha-aprehension').value = fechaActualFormateada;
-        if (!document.getElementById('informe-fecha-referencia').value)
-            document.getElementById('informe-fecha-referencia').value = fechaActualFormateada;
-
-        const ft = `El reconocimiento del lugar  es un  acto procesal que se cumplen por orden de autoridad competente y previa posesión ante la misma, tiene como fin la percepción y comprobación de los efectos materiales que el hecho investigado hubiere dejado, mediante la fijación de la actividad, motivo de la diligencia, así como también la búsqueda minuciosa de indicios, huellas, rastros o vestigios que indicaran directamente la existencia de un delito, al tratarse de un hecho que no produjo efectos materiales, o hubiere sido alterado o el tiempo hubiese cambiado, se describirá el estado existente, para tal efecto se utilizara las técnicas de observación y fijación adecuadas a lo solicitado por la autoridad competente.`;
+        const ft = `El reconocimiento del lugar  es un  acto procesal que se cumplen por orden de autoridad competente y previa posesión ante la misma, tiene como fin la percepción y comprobación de los efectos materiales que el hecho investigado hubierejado, mediante la fijación de la actividad, motivo de la diligencia, así como también la búsqueda minuciosa de indicios, huellas, rastros o vestigios que indicaran directamente la existencia de un delito, al tratarse de un hecho que no produjo efectos materiales, o hubiere sido alterado o el tiempo hubiese cambiado, se describirá el estado existente, para tal efecto se utilizara las técnicas de observación y fijación adecuadas a lo solicitado por la autoridad competente.`;
         if (document.getElementById('informe-fundamentos-tecnicos').value === "")
             document.getElementById('informe-fundamentos-tecnicos').value = ft;
 
@@ -700,21 +952,42 @@ document.addEventListener("DOMContentLoaded", () => {
         const step3Inputs = document.querySelectorAll('#wizard-step-3 input, #wizard-step-3 textarea');
         step3Inputs.forEach(input => {
             input.removeEventListener('input', showNavButtons); 
-            input.addEventListener('input', showNavButtons); // <-- Cualquier cambio en el Paso 3 oculta los botones post-save
+            input.addEventListener('input', showNavButtons); 
         });
     }
 
+    // --- [INICIO: CORRECCIÓN] ---
     function actualizarCuerpoOficio() {
+        const datosFlag = JSON.parse(localStorage.getItem('datosFlagrancia')); // Obtener datos de flagrancia
+        
         const anio = document.getElementById('oficio-anio').value;
         const numero = document.getElementById('oficio-numero').value;
         const fecha = document.getElementById('oficio-fecha').value;
+        const asuntoNumero = document.getElementById('oficio-asunto-numero').value;
+
+        // Usar datosFlag si están disponibles, de lo contrario, usar '...'
+        const ifNro = datosFlag ? datosFlag.if_number : '...';
+        const detenido = datosFlag ? datosFlag.detenido.trim() : '...'; // Corregido de datosFlag.detenido
+        const delito = datosFlag ? datosFlag.delito : '...';
+
         document.getElementById('cuerpo-oficio-nro').textContent = `PN-ZONA8-JINVPJ-UDF-${anio}-${numero}`;
         document.getElementById('cuerpo-oficio-fecha').textContent = fecha;
+        document.getElementById('cuerpo-oficio-asunto').textContent = `FPG-FEIFO${asuntoNumero}`;
+        
+        document.getElementById('cuerpo-if-nro').textContent = ifNro;
+        document.getElementById('cuerpo-detenido-nombre').textContent = detenido;
+        document.getElementById('cuerpo-delito-nombre').textContent = delito;
     }
+    // --- [FIN: CORRECCIÓN] ---
 
     function formatearFecha(date) {
-        const options = { day: '2-digit', month: 'long', year: 'numeric' };
-        const fechaFormateada = date.toLocaleDateString('es-EC', options);
+        // Corrección para evitar error si la fecha es inválida
+        if (!date) return "Guayaquil, fecha inválida";
+        const options = { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC' }; // Usar UTC
+        const fechaObj = (date instanceof Date) ? date : new Date(date);
+        if (isNaN(fechaObj.getTime())) return "Guayaquil, fecha inválida";
+        
+        const fechaFormateada = fechaObj.toLocaleDateString('es-EC', options);
         return `Guayaquil, ${fechaFormateada}`;
     }
 
@@ -735,4 +1008,41 @@ document.addEventListener("DOMContentLoaded", () => {
             new bootstrap.Tab(lastTab).show();
         }
     }
+    
+    // --- FUNCIÓN DE AYUDA PARA DESCARGA (SIN CAMBIOS) ---
+    function downloadFileFromBase64(base64Data, fileName, mimeType, format) {
+        try {
+            const byteCharacters = atob(base64Data);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: mimeType });
+
+            const blobUrl = URL.createObjectURL(blob);
+
+            if (format === 'pdf') {
+                window.open(blobUrl, '_blank');
+            } else {
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = fileName; 
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+
+        } catch (e) {
+            console.error("Error al decodificar o descargar el archivo:", e);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de Descarga',
+                text: 'Hubo un problema al crear el archivo para descargar.',
+                customClass: swalDark
+            });
+        }
+    }
+
 });
