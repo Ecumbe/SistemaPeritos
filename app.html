@@ -193,17 +193,20 @@
                             <hr class="my-4 border-secondary">
                             
                             <p class="text-white-50">El siguiente texto se rellenará con los datos del formulario y los datos de la búsqueda.</p>
+                            
                             <div class="p-3 bg-dark-subtle rounded border border-secondary mb-3">
                                 <p>En su despacho. -</p>
                                 <p>De mis consideraciones:</p>
                                 <p>
                                     Para su conocimiento y fines legales pertinentes adjunto al presente, el Informe de
-                                    Reconocimiento del Lugar de los Hechos Nro. <strong id="cuerpo-oficio-nro" class="text-warning">...</strong>, de fecha <strong id="cuerpo-oficio-fecha" class="text-warning">...</strong>, con relación a la Instrucción Fiscal, No. <strong id="cuerpo-if-nro" class="text-warning">...</strong>, que se sigue
+                                    Reconocimiento del Lugar de los Hechos Nro. <strong id="cuerpo-oficio-nro" class="text-warning">...</strong>,
+                                    de fecha <strong id="cuerpo-oficio-fecha" class="text-warning">...</strong>,
+                                    con relación al Oficio No. <strong id="cuerpo-oficio-asunto" class="text-warning">...</strong>,
+                                    con relación a la Instrucción Fiscal, No. <strong id="cuerpo-if-nro" class="text-warning">...</strong>, que se sigue
                                     en contra del procesado: <strong id="cuerpo-detenido-nombre" class="text-warning">...</strong>.
                                     Por el presunto delito de <strong id="cuerpo-delito-nombre" class="text-warning">...</strong>.
                                 </p>
                             </div>
-
                             <hr class="my-4 border-secondary">
 
                             <p class="mb-3">Atentamente.</p>
@@ -394,28 +397,35 @@
                         </button>
                         
                     </div>
-                    </div>
+                </div>
 
 
             </div>
 
             <div class="tab-pane fade p-4" id="buscar-pane" role="tabpanel">
                 <h3 class="mb-3">Buscar Informes</h3>
-                <p>Busca por Número de IF o Nombre del detenido.</p>
+                <p>Busca por N° de Instrucción Fiscal o Nombre del detenido.</p>
                 <form id="search-form" class="mb-4">
                     <div class="input-group">
-                        <input type="text" id="search-term" class="form-control" placeholder="Buscar por IF o Nombre del detenido..." required>
+                        <input type="text" id="search-term" class="form-control" placeholder="Buscar..." required>
                         <button class="btn btn-primary" type="submit" id="btn-search">
                             <i class="fa-solid fa-search"></i> Buscar
                         </button>
                     </div>
                 </form>
+
+                <div id="search-loader" class="text-center my-3 d-none">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2">Buscando informes...</p>
+                </div>
+
                 <div id="search-results-container" class="mt-4" style="display: none;">
                     <h4>Resultados de la Búsqueda</h4>
                     <div class="table-responsive">
                         <table class="table table-dark table-striped table-hover app-table">
                             <thead>
                                 <tr>
+                                    <th>IF (instruccion fiscal)</th>
                                     <th>N° Informe (IF)</th>
                                     <th>Nombre del Detenido</th>
                                     <th>Fecha Creación</th>
@@ -425,23 +435,24 @@
                             </thead>
                             <tbody id="search-results-tbody">
                                 <tr>
+                                    <td>90101825100815</td>
                                     <td>PN-ZONA8-2025-001</td>
                                     <td>ROBERTO FERNANDO GUAMAN</td>
                                     <td>30/10/2025</td>
                                     <td>admin</td>
                                     <td>
-                                        <button class="btn btn-warning btn-sm me-1" title="Copiar y Editar">
-                                            <i class="fa-solid fa-copy"></i>
-                                        </button>
                                         <button class="btn btn-info btn-sm me-1" title="Editar">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
-                                        <button class="btn btn-danger btn-sm" title="Visualizar e Imprimir (PDF)">
+                                        <button class="btn btn-danger btn-sm me-1" title="Visualizar (PDF)">
                                             <i class="fa-solid fa-file-pdf"></i>
+                                        </button>
+                                        <button class="btn btn-primary btn-sm" title="Descargar (WORD)">
+                                            <i class="fa-solid fa-file-word"></i>
                                         </button>
                                     </td>
                                 </tr>
-                                </tbody>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -542,6 +553,7 @@
 
     <script src="js/photo-editor.js"></script>
     <script src="js/app.js"></script>
+
 
 </body>
 </html>
