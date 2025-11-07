@@ -1106,15 +1106,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const agendamientoCalendarioInput = document.getElementById('agendamiento-calendario-input');
     const btnMostrarHoy = document.getElementById('btn-mostrar-hoy');
 
-    // --- [INICIO: ARREGLO BOTÓN "MOSTRAR HOY"] ---
-    // Establecer fecha en el botón "Mostrar Hoy"
-    const hoy = new Date();
-    const dia = String(hoy.getDate()).padStart(2, '0');
-    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
-    const anio = hoy.getFullYear();
-    btnMostrarHoy.innerHTML = `<i class="fa-solid fa-calendar-day me-1"></i> Mostrar Hoy (${dia}/${mes}/${anio})`;
-    // --- [FIN: ARREGLO BOTÓN "MOSTRAR HOY"] ---
-
 
     /**
      * Listener para BUSCAR IF dentro del modal de agendamiento
