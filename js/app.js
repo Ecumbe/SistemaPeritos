@@ -1104,13 +1104,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const agendamientoSearchInput = document.getElementById('agendamiento-search-input');
     const agendamientoRealtimeBox = document.getElementById('agendamiento-realtime-box');
     const agendamientoCalendarioInput = document.getElementById('agendamiento-calendario-input');
-    // --- [NUEVO] Establecer fecha en el botón "Mostrar Hoy" ---
+    const btnMostrarHoy = document.getElementById('btn-mostrar-hoy');
+
+    // --- [INICIO: ARREGLO BOTÓN "MOSTRAR HOY"] ---
+    // Establecer fecha en el botón "Mostrar Hoy"
     const hoy = new Date();
     const dia = String(hoy.getDate()).padStart(2, '0');
     const mes = String(hoy.getMonth() + 1).padStart(2, '0');
     const anio = hoy.getFullYear();
     btnMostrarHoy.innerHTML = `<i class="fa-solid fa-calendar-day me-1"></i> Mostrar Hoy (${dia}/${mes}/${anio})`;
-// --- [FIN NUEVO] ---
+    // --- [FIN: ARREGLO BOTÓN "MOSTRAR HOY"] ---
 
 
     /**
