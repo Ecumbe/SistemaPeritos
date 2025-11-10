@@ -353,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const fechaAprehension = document.getElementById('tabla-fecha-aprehension').value;
         const procesado = document.getElementById('tabla-procesado').value;
         const lugar = document.getElementById('tabla-lugar-hechos').value;
-        const texto = `SE DETERMINA QUE EL LUGAR DE LOS HECHOS, SUSCRITO EN EL PARTE DE APREHENSIÓN, DE FECHA ${fechaAprehension}, EN CONTRA DE LA CIUDADANA HOY PROCESADA ${procesado}, (SI EXISTE) Y SE ENCUENTRA UBICADO EN EL ${lugar}, MISMA QUE FUE FIJADA Y FOTOGRAFIADA Y DESCRIPTIVAMENTE SE ENCUENTRA DETALLADA.`;
+        const texto = `Se determina que el lugar de los hechos, suscrito en el parte de aprehensión, de fecha ${fechaAprehension}, en contra de la ciudadana hoy procesado (a) ${procesado}, (SI EXISTE) y se encuentra ubicado en el ${lugar}, misma que fue fijada y fotografiada y descriptivamente se encuentra detallada.`;
         document.getElementById('informe-conclusiones').value = texto;
     });
 
@@ -1483,3 +1483,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 });
+
