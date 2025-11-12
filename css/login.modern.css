@@ -1,0 +1,122 @@
+/* ================================
+   Glass UI Moderno - Login
+   Archivo: login.modern.css
+================================ */
+
+/* Paleta y variables */
+:root {
+  --color-accent: #3B82F6;
+  --glass-bg: rgba(255, 255, 255, 0.18);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --text-light: #ffffff;
+  --text-muted: #d1d5db;
+
+  /* Modo claro */
+  --bg-main-light: #f0f2f5;
+  --text-dark: #1a1a1a;
+
+  /* Modo oscuro */
+  --bg-main-dark: #0f121a;
+}
+
+/* Modo claro/oscuro automático */
+body {
+  background: var(--bg-main-light);
+  color: var(--text-dark);
+  transition: all .35s ease;
+}
+@media (prefers-color-scheme: dark) {
+  body {
+    background: var(--bg-main-dark);
+    color: var(--text-light);
+  }
+}
+
+/* Container principal */
+.login-card-container {
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.45);
+  overflow: hidden;
+  transition: all .4s ease;
+}
+
+/* Sección izquierda / derecha */
+.login-welcome-section {
+  background: transparent !important;
+}
+.login-form-section {
+  background: transparent !important;
+}
+
+/* Titulares */
+.login-welcome-section h2,
+.login-form-section h2 {
+  font-weight: 600;
+  letter-spacing: .5px;
+}
+
+/* Inputs */
+.input-group .form-control {
+  background: rgba(255,255,255,0.15) !important;
+  border: 1px solid rgba(255,255,255,0.3) !important;
+  color: var(--text-light) !important;
+  border-radius: 10px;
+}
+
+.input-group-text {
+  background: rgba(255,255,255,0.12) !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  color: var(--text-light) !important;
+  border-radius: 10px;
+}
+
+/* Placeholder */
+::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Botón */
+#btn-login {
+  background: var(--color-accent);
+  border: none;
+  font-weight: 600;
+  padding: .75rem;
+  border-radius: 12px;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+#btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59,130,246,0.45);
+}
+
+/* Mostrar/ocultar contraseña */
+#toggle-password i {
+  color: var(--text-muted) !important;
+  transition: color .25s ease;
+}
+#toggle-password:hover i {
+  color: var(--color-accent) !important;
+}
+
+/* Texto descriptivo */
+.login-welcome-section p,
+.login-form-section p {
+  color: var(--text-muted) !important;
+}
+
+/* Suavizar animación de entrada */
+.login-card-container {
+  animation: fadeInScale .6s ease forwards;
+  opacity: 0;
+  transform: scale(.97);
+}
+@keyframes fadeInScale {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
