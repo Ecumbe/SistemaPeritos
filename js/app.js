@@ -2,7 +2,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     // --- 0. URL DE LA API ---
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyOJRwHdoEVvVEXuSYn9znm3jzLwmNrHJhlWZ_qAwQzU7sq5VOYPNM2NTBsTTp_8SWAcg/exec"; // 👈 REEMPLAZA ESTO
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwfKYrojdS7bbGy0ioSHASxgfacOjSsWOzucfAOUyZHjVb9v00_nT-f0IJDdMHlTo6ThA/exec"; // 👈 REEMPLAZA ESTO
 
     // Guardamos la URL en localStorage para que 'editar-informe.js' pueda usarla
     localStorage.setItem("GAS_API_URL", GAS_API_URL);
@@ -1587,5 +1587,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- INICIALIZACIÓN FINAL DEL STEPPER ---
     updateWizardStepper(1); // Asegura que inicie en el paso 1
+
 
 });
