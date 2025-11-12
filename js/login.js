@@ -2,7 +2,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     // --- ¡¡¡IMPORTANTE!!! ---
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyOJRwHdoEVvVEXuSYn9znm3jzLwmNrHJhlWZ_qAwQzU7sq5VOYPNM2NTBsTTp_8SWAcg/exec"; // 👈 URL ACTUAL
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwfKYrojdS7bbGy0ioSHASxgfacOjSsWOzucfAOUyZHjVb9v00_nT-f0IJDdMHlTo6ThA/exec"; // 👈 URL ACTUAL
 
     // --- [INICIO DE LA CORRECIÓN] ---
     // Guardamos la URL en localStorage AQUÍ, para que
@@ -147,5 +147,6 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error('Error en el fetch:', error);
         });
     });
+
 
 });
