@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 statTotalGeneral.textContent = data.kpis.totalGeneral;
 
                 // Rellenar rango de fechas
-                statsDateRange.innerHTML = `<i class="fa-solid fa-calendar-days"></i> Mostrando datos de los últimos 30 días: (<strong>${data.dateRange}</strong>)`;
+                statsDateRange.innerHTML = `<i class="fa-solid fa-calendar-days"></i> Mostrando datos de los últimos 45 días: (<strong>${data.dateRange}</strong>)`;
 
                 // Dibujar el gráfico (Req 2)
                 renderDelegacionesChart(data.chartData);
@@ -393,5 +393,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
     }
+
 
 });
