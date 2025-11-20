@@ -367,4 +367,22 @@ body.app-body {
     margin-top: 0.5rem;
     padding-top: 0.5rem;
     border-top: 1px solid #4a5568;
+
 }
+.boton-chido {
+    background-color: #28a745; /* Verde bonito */
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none; /* Quita el subrayado feo de los links */
+    border-radius: 8px; /* Bordes redondeados */
+    font-family: sans-serif;
+    font-weight: bold;
+    transition: background 0.3s; /* Suaviza el cambio de color */
+    display: inline-block;
+  }
+
+  /* Esto hace que cambie de color cuando le pasas el mouse por encima */
+  .boton-chido:hover {
+    background-color: #218838; 
+    cursor: pointer;
+  }
