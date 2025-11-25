@@ -1,0 +1,419 @@
+/* ==========================================================
+   ESTILOS GENERALES Y LOGIN
+   ========================================================== */
+
+body {
+    background: linear-gradient(120deg, #1a202c 0%, #2d3748 100%);
+    font-family: 'Arial', sans-serif;
+    color: #e2e8f0;
+    min-height: 100vh;
+}
+
+/* --- [MEJORA 1 y 3] ALINEACIÓN Y MAYÚSCULAS CONSOLIDADO --- */
+
+/* Justificar texto en textareas y select (para párrafos largos) */
+textarea,
+.oficio-form .form-control:not([type="text"]):not([type="date"]):not(input) {
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+/* Resto de inputs (números, fechas, nombres) se mantienen a la izquierda */
+.form-control, 
+.form-select {
+    text-align: left;
+}
+
+/* Forzar mayúsculas visuales en campos específicos de Oficio */
+#oficio-numero,
+#oficio-asunto-numero {
+    text-transform: uppercase;
+}
+/* Estilos base de Inputs */
+.form-control {
+    background-color: #1a202c;
+    color: #e2e8f0;
+    border: 1px solid #4a5568;
+    padding: 12px 15px;
+    height: auto;
+}
+
+.form-control:focus {
+    background-color: #1a202c;
+    color: #e2e8f0;
+    border-color: #3182ce;
+    box-shadow: 0 0 0 0.25rem rgba(49, 130, 206, 0.25);
+}
+
+.form-control::placeholder {
+    color: #a0aec0;
+    opacity: 1;
+    text-align: left;
+}
+
+.input-group-text {
+    background-color: #4a5568;
+    border: 1px solid #4a5568;
+    color: #e2e8f0;
+}
+
+/* Botones */
+.btn-primary {
+    background: linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%);
+    border: none;
+    padding: 12px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    box-shadow: 0 4px 15px rgba(49, 130, 206, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Estilos Login Legacy (Compatibilidad) */
+.login-card-container {
+    width: 100%;
+    max-width: 900px;
+    min-height: 500px;
+    border-radius: 15px;
+    overflow: hidden;
+    background-color: #2d3748;
+}
+
+.login-form-section {
+    background-color: #2d3748;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-welcome-section {
+    background: linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%);
+    color: #ffffff;
+    align-items: flex-start;
+}
+
+@media (max-width: 767.98px) {
+    .login-card-container {
+        border-radius: 0;
+        width: 100%;
+        max-width: 100%;
+        min-height: 100vh;
+        box-shadow: none !important;
+    }
+    .login-welcome-section {
+        min-height: 30vh;
+        text-align: center;
+        align-items: center;
+    }
+    .login-form-section {
+        min-height: 70vh;
+        padding: 2.5rem !important;
+    }
+}
+
+
+/* ==========================================================
+   ESTILOS PARA LA APP (app.html)
+   ========================================================== */
+
+body.app-body {
+    padding-top: 70px;
+    background: #1a202c;
+}
+
+.app-navbar {
+    background-color: #2d3748;
+}
+
+.app-main-content {
+    background-color: #2d3748;
+    border-radius: 8px;
+    padding: 0;
+    margin-top: 2rem;
+    max-width: 1200px;
+    overflow: hidden;
+}
+
+.app-tabs {
+    border-bottom: 1px solid #4a5568;
+    background-color: #1a202c;
+}
+
+.app-tabs .nav-link {
+    color: #a0aec0;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 1rem 1.5rem;
+}
+
+.app-tabs .nav-link:hover {
+    color: #e2e8f0;
+    border-color: #4a5568;
+}
+
+.app-tabs .nav-link.active {
+    color: #ffffff;
+    background-color: #2d3748;
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
+    border-bottom: 3px solid #3182ce;
+}
+
+.app-tabs .nav-link.disabled {
+    color: #4a5568;
+}
+
+.tab-content {
+    color: #e2e8f0;
+}
+
+/* ==========================================================
+   ESTILOS PARA LA TABLA DE BÚSQUEDA
+   ========================================================== */
+
+.app-table th {
+    background-color: #1a202c; 
+    color: #a0aec0;
+}
+
+.table-hover > tbody > tr:hover > * {
+    background-color: #374151;
+    color: #ffffff;
+}
+
+.app-table .btn-sm {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* ==========================================================
+   ESTILOS "NUEVO INFORME" (PASO 1)
+   ========================================================== */
+
+.result-item {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #e2e8f0;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid #4a5568;
+    padding-bottom: 0.75rem;
+}
+
+.result-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.result-item strong {
+    color: #a0aec0;
+    display: inline-block;
+    min-width: 140px;
+}
+
+/* ==========================================================
+   ESTILOS "NUEVO INFORME" (PASO 2 & 3) - OFICIO
+   ========================================================== */
+
+.oficio-form {
+    font-family: Arial, sans-serif;
+    font-size: 12pt;
+    color: #e2e8f0;
+}
+
+.oficio-form .form-control,
+.oficio-form .form-select {
+    font-family: Arial, sans-serif;
+    font-size: 12pt;
+    background-color: #1a202c;
+    color: #e2e8f0;
+    border: 1px solid #4a5568;
+}
+
+.oficio-form .form-control:focus,
+.oficio-form .form-select:focus {
+    background-color: #1a202c;
+    color: #e2e8f0;
+    border-color: #3182ce;
+    box-shadow: 0 0 0 0.25rem rgba(49, 130, 206, 0.25);
+}
+
+.oficio-form .form-control[readonly] {
+    background-color: #374151;
+    color: #a0aec0;
+    opacity: 1;
+}
+
+.oficio-form .bg-dark-subtle {
+    background-color: #1a202c !important;
+}
+.oficio-form p {
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+}
+
+.oficio-form p.mb-3 {
+    margin-bottom: 1rem !important;
+}
+.oficio-form p.my-1 {
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.25rem !important;
+}
+
+/* ==========================================================
+   ESTILOS PASO 4: FOTOS Y VISIBILIDAD (Corregido)
+   ========================================================== */
+
+/* Fuerza color blanco al título de la lámina */
+.lamina-card .card-header h5,
+.lamina-card .card-header span {
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+/* Fuerza color blanco a la etiqueta "Subir fotos..." */
+.lamina-card label.form-label {
+    color: #ffffff !important;
+    font-weight: 500;
+}
+
+/* ==========================================================
+   AJUSTES CRÍTICOS PARA EL EDITOR DE FOTOS (TUI)
+   ========================================================== */
+   
+/* TUI Submenu: Forzar visibilidad del control de FONDO (FILL/BACKGROUND) */
+/* El selector 'fill' es donde está el color de fondo del texto en TUI. */
+.tui-image-editor-submenu-item[data-item="fill"] {
+    display: flex !important;
+}
+/* Asegurar que la etiqueta de Fondo (traducida) no se confunda con el color del texto */
+.tui-image-editor-item-color .tui-image-editor-sub-title {
+    color: #fff !important; 
+}
+/* Opcional: Estilo para que el picker se vea bien con el fondo oscuro */
+.tui-image-editor-item-color .tui-color-picker-value {
+    background-color: #111827 !important;
+    border: 1px solid #4a5568 !important;
+}
+
+/* ==========================================================
+   KPI DASHBOARD (ADMIN)
+   ========================================================== */
+#dashboard-pane .card.border-secondary {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+#dashboard-pane .card.border-secondary .card-body {
+    color: #ffffff !important;
+}
+
+#dashboard-pane .card.border-secondary h6 {
+    color: #cbd5e0 !important;
+}
+
+#stat-total-si,
+#stat-total-no,
+#stat-total-general {
+    font-size: 2.6rem;
+    font-weight: 700;
+}
+
+/* ==========================================================
+   ESTILOS AGENDAMIENTO
+   ========================================================== */
+
+#agendamiento-realtime-box {
+    background-color: #1a202c;
+    border: 1px solid #4a5568;
+    border-radius: 0.375rem;
+}
+
+.agendamiento-card-item {
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
+    margin-bottom: 0.75rem;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.agendamiento-card-item h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #38bdf8;
+    margin-bottom: 0.75rem !important;
+}
+
+.agendamiento-card-item p {
+    font-size: 0.95rem;
+    margin-bottom: 0.35rem !important; 
+    color: #e2e8f0;
+}
+
+.agendamiento-card-item p strong {
+    color: #a0aec0;
+    font-weight: 500;
+    margin-right: 5px;
+}
+
+.agendamiento-card-item small {
+    font-size: 0.9rem;
+    color: #a0aec0 !important;
+    font-style: italic;
+    display: block;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #4a5568;
+
+}
+.boton-chido {
+    background-color: #28a745; /* Verde bonito */
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none; /* Quita el subrayado feo de los links */
+    border-radius: 8px; /* Bordes redondeados */
+    font-family: sans-serif;
+    font-weight: bold;
+    transition: background 0.3s; /* Suaviza el cambio de color */
+    display: inline-block;
+  }
+
+  /* Esto hace que cambie de color cuando le pasas el mouse por encima */
+  .boton-chido:hover {
+    background-color: #218838; 
+    cursor: pointer;
+  }
+/* ==========================================================
+   SUNEDITOR DARK MODE CUSTOMIZATION
+   ========================================================== */
+.sun-editor {
+    border: 1px solid #4a5568 !important;
+    background-color: #1a202c !important;
+}
+.sun-editor .se-toolbar {
+    background-color: #2d3748 !important;
+    outline: 1px solid #4a5568 !important;
+}
+.sun-editor .se-btn {
+    color: #e2e8f0 !important;
+}
+.sun-editor .se-btn:hover {
+    background-color: #4a5568 !important;
+}
+.sun-editor .se-wrapper .se-wrapper-inner {
+    background-color: #1a202c !important;
+    color: #e2e8f0 !important;
+}
+.sun-editor .se-resizing-bar {
+    background-color: #2d3748 !important;
+    border-top: 1px solid #4a5568 !important;
+}
+/* Ajuste para que el texto dentro del editor se vea bien */
+.sun-editor-editable {
+    font-family: 'Arial', sans-serif !important;
+    font-size: 13.5px !important;
+    color: #e2e8f0 !important;
+}
