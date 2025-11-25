@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SistemaPeritos - Aplicación</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.css">
+    <link href="https://unpkg.com/suneditor@2.46.0/dist/css/suneditor.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://uicdn.toast.com/tui-image-editor/v3.15.3/tui-image-editor.min.css">
+    <link rel="stylesheet" href="https://uicdn.toast.com/tui.color-picker/v2.2.6/tui-color-picker.min.css">
+    
+    
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/sidebar-layout.css">
+
+    <style>
+        .foto-title-input {
+            background-color: transparent !important;
+            border: none !important;
+            color: #e2e8f0 !important;
+            font-weight: bold;
+            box-shadow: none !important;
+            padding-left: 0.5rem !important;
+        }
+        
+        .tui-image-editor-button[data-type="fill"] {
+            display: flex !important;
+        }
+        .tui-image-editor-submenu-item .tui-image-editor-item-color,
+        .tui-image-editor-item-color .tui-image-editor-sub-title {
+            color: #fff !important; 
+        }
+
+        @media (min-width: 992px) {
+            .app-main-content .main-content-wrapper {
+                max-width: 1200px !important; 
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    </style>
+</head>
+
+<body class="app-body">
+
+    <div class="sidebar">
+        
+        <div class="sidebar-header">
+            <a class="sidebar-brand" href="#">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span class="sidebar-brand-text">SistemaPeritos PJ</span>
+            </a>
+            <button class="sidebar-toggle-btn" title="Colapsar menú">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="user-info-wrapper">
+            <i class="fa-solid fa-user-circle"></i>
+            <div class="user-info-text">
+                <span class="navbar-text" id="user-greeting">
+                    Cargando...
+                </span>
+                <span class="text-muted">Perito</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            
+            <a class="nav-link active" id="inicio-tab" data-bs-toggle="tab" data-bs-target="#inicio-pane" href="#" role="tab">
+                <i class="fa-solid fa-house"></i>
+                <span class="nav-link-text">Inicio</span>
+            </a>
+            
+            <a class="nav-link" id="nuevo-tab" data-bs-toggle="tab" data-bs-target="#nuevo-pane" href="#" role="tab">
+                <i class="fa-solid fa-plus-circle"></i>
+                <span class="nav-link-text">Nuevo Informe</span>
+            </a>
+            
+            <a class="nav-link" id="buscar-tab" data-bs-toggle="tab" data-bs-target="#buscar-pane" href="#" role="tab">
+                <i class="fa-solid fa-search"></i>
+                <span class="nav-link-text">Buscar</span>
+            </a>
+            
+            <a class="nav-link" id="agendamiento-tab" data-bs-toggle="tab" data-bs-target="#agendamiento-pane" href="#" role="tab">
+                <i class="fa-solid fa-calendar-alt"></i>
+                <span class="nav-link-text">Agendamiento</span>
+            </a>
+            <a class="nav-link"
+               id="delegaciones-tab"
+               href="https://ecumbe.github.io/PERITOS2.0/index.html"
+               target="_blank"
+               rel="noopener noreferrer"
+               data-external="true">
+                <i class="fas fa-star"></i>
+                <span class="nav-link-text">Página de Delegaciones</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn btn-outline-danger" id="btn-logout" title="Cerrar Sesión">
+                <i class="fa-solid fa-right-from-bracket me-2"></i>
+                <span>Cerrar Sesión</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="mobile-header">
+        <button class="mobile-toggle-btn" title="Abrir menú">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a class="mobile-brand" href="#">
+            SistemaPeritos PJ
+        </a>
+    </div>
+
+    <div class="sidebar-overlay"></div>
+    <div class="container-fluid app-main-content">
+        
+        <div id="main-wizard-stepper">
+            <div class="step-wizard-container">
+                <ul class="step-wizard-list">
+                    <li class="step-wizard-item active" id="step-marker-1">
+                        <span class="step-marker">1</span>
+                        <span class="step-label d-none d-md-block">Datos IF</span>
+                    </li>
+                    <li class="step-wizard-item" id="step-marker-2">
+                        <span class="step-marker">2</span>
+                        <span class="step-label d-none d-md-block">Oficio</span>
+                    </li>
+                    <li class="step-wizard-item" id="step-marker-3">
+                        <span class="step-marker">3</span>
+                        <span class="step-label d-none d-md-block">Informe</span>
+                    </li>
+                    <li class="step-wizard-item" id="step-marker-4">
+                        <span class="step-marker">4</span>
+                        <span class="step-label d-none d-md-block">Fotos</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content-wrapper">
+
+            <ul class="nav nav-tabs app-tabs" id="myTab" role="tablist" style="display: none;">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="inicio-tab-original" data-bs-toggle="tab" data-bs-target="#inicio-pane" type="button" role="tab"></button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="nuevo-tab-original" data-bs-toggle="tab" data-bs-target="#nuevo-pane" type="button" role="tab"></button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="buscar-tab-original" data-bs-toggle="tab" data-bs-target="#buscar-pane" type="button" role="tab"></button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="agendamiento-tab-original" data-bs-toggle="tab" data-bs-target="#agendamiento-pane" type="button" role="tab"></button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+                
+                <div class="tab-pane fade show active p-4" id="inicio-pane" role="tabpanel">
+                    <h3 class="mb-3">¡Bienvenido a Sistema de Informes Reconocimiento del lugar de los Hechos!</h3>
+                    <p>Este es tu panel principal. Desde aquí puedes gestionar tus informes.</p>
+                    <hr class="my-4">
+                    <h4>Funcionalidades:</h4>
+                    <ul>
+                        <li><strong>Nuevo Informe:</strong> Crea un nuevo informe pericial desde cero.</li>
+                        <li><strong>Buscar:</strong> Busca, visualiza e imprime informes que ya has creado.</li>
+                        <li><strong>Agendamiento:</strong> Gestiona tus recordatorios y agendamientos de audiencias.</li>
+                        <li><strong>Estadísticas:</strong> visualización de delegaciones realizadas y faltantes de los últimos 45 días.</li>
+                    </ul>
+                    
+                    <h5 class="mt-4">Informes Hechos: <span id="report-count" class="badge bg-primary">00</span></h5>
+
+                    <div class="card bg-dark border-secondary shadow-sm mt-4 mb-2">
+                        <div class="card-body py-3">
+                            <h6 class="text-warning mb-3">
+                                <i class="fa-solid fa-list-ol me-2"></i>
+                                Número de oficios utilizados, usa el siguiente:
+                            </h6>
+                            <div id="container-ultimos-oficios" class="d-flex flex-wrap gap-2">
+                                <small class="text-white-50">Cargando...</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="user-productividad" class="mt-4 p-3 rounded">
+                        <h5 class="text-white mb-3">Resumen de Productividad de los últimos 45 días</h5>
+                        <div class="row text-center g-3">
+                            <div class="col-md-4">
+                                <div class="p-3 rounded">
+                                    <h6 class="text-light kpi-label">Cumplidas (SI)</h6>
+                                    <span id="user-si" class="text-success kpi-value">0</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 rounded">
+                                    <h6 class="text-light kpi-label">Pendientes (NO)</h6>
+                                    <span id="user-no" class="text-danger kpi-value">0</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 rounded">
+                                    <h6 class="text-light kpi-label">Total Delegaciones</h6>
+                                    <span id="user-total" class="text-white kpi-value">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-center text-white-50 mt-3" id="user-range">Rango: -</p>
+                    </div>
+                </div>
+                <div class="tab-pane fade p-4" id="nuevo-pane" role="tabpanel">
+
+                    <div id="wizard-step-1">
+                        <h3 class="mb-3">Paso 1: Cargar Datos de Flagrancia</h3>
+
+                        <div class="card bg-dark shadow-sm border-secondary">
+                            <div class="card-body">
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" id="if-search-input" placeholder="Ingresa el N° de IF..." spellcheck="true">
+                                    <button class="btn btn-primary" type="button" id="if-search-btn">
+                                        <i class="fa-solid fa-search me-1"></i> Buscar
+                                    </button>
+                                </div>
+
+                                <div id="if-search-loader" class="text-center my-3 d-none">
+                                    <div class="spinner-border text-primary"></div>
+                                    <p class="mt-2">Buscando en Flagrancia...</p>
+                                </div>
+
+                                <div id="if-search-results-card" class="card shadow-sm mt-4 d-none animate__animated animate__fadeIn">
+                                    <div class="card-header bg-success text-white">
+                                        <i class="fa-solid fa-check-circle me-2"></i>
+                                        <strong>Datos Encontrados Correctamente</strong>
+                                    </div>
+                                    <div class="card-body bg-dark" id="if-search-results-content"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <button id="if-search-continuar" class="btn btn-success btn-lg d-none animate__animated animate__pulse">
+                                <i class="fa-solid fa-arrow-right me-2"></i>
+                                Continuar al Paso 2
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="wizard-step-2" class="d-none">
+                        <h3 class="mb-3">Paso 2: Completar Datos del Oficio</h3>
+
+                        <div class="card bg-dark shadow-sm border-secondary">
+                            <div class="card-body p-4 oficio-form">
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-3 col-form-label">Oficio No.</label>
+                                    <div class="col-sm-9 d-flex align-items-center">
+                                        <span class="me-1">PN-ZONA8-JINVPJ-UDF-</span>
+
+                                        <input type="text" 
+                                               class="form-control me-1"
+                                               id="oficio-anio"
+                                               style="width: 80px;"
+                                               spellcheck="false"
+                                               oninput="this.value = this.value.toUpperCase()">
+
+                                        <span>-</span>
+
+                                        <input type="text"
+                                               class="form-control ms-1"
+                                               id="oficio-numero"
+                                               spellcheck="false"
+                                               style="text-transform: uppercase;"
+                                               oninput="this.value = this.value.toUpperCase()">
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-3 col-form-label">Fecha:</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="oficio-fecha" spellcheck="false">
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-3 col-form-label fw-bold">Asunto:</label>
+                                    <div class="col-sm-9 d-flex align-items-center">
+                                        <span class="me-1">CONTESTACION AL OFICIO No. FPG-FEIFO</span>
+                                        <input type="text"
+                                               class="form-control ms-1"
+                                               id="oficio-asunto-numero"
+                                               spellcheck="false"
+                                               style="text-transform: uppercase;"
+                                               oninput="this.value = this.value.toUpperCase()">
+                                    </div>
+                                </div>
+
+                                <hr class="my-4 border-secondary">
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-3 col-form-label">Tratamiento:</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-select" id="oficio-tratamiento">
+                                            <option value="Señor:">Señor:</option>
+                                            <option value="Señora:">Señora:</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-3 col-form-label">Nombre Fiscal:</label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="oficio-fiscal-nombre" spellcheck="true">
+                                            <span class="input-group-text">FISCAL DE LO PENAL DEL GUAYAS</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-3 col-form-label">Unidad Fiscal:</label>
+                                    <div class="col-sm-9 d-flex align-items-center">
+                                        <span class="me-1">FISCALIA DE INVESTIGACIÓN DE</span>
+                                        <input type="text" class="form-control ms-1" id="oficio-fiscal-unidad" spellcheck="true">
+                                    </div>
+                                </div>
+
+                                <hr class="my-4 border-secondary">
+
+                                <div class="p-3 bg-dark-subtle rounded border border-secondary mb-3">
+                                    <p>En su despacho. -</p>
+                                    <p>De mis consideraciones:</p>
+                                    <p>
+                                        Para su conocimiento adjunto el Informe Nro. 
+                                        <strong id="cuerpo-oficio-nro" class="text-warning">...</strong>, 
+                                        fecha <strong id="cuerpo-oficio-fecha" class="text-warning">...</strong>,
+                                        con relación al Oficio No. <strong id="cuerpo-oficio-asunto" class="text-warning">...</strong>,
+                                        en relación a la IF No. <strong id="cuerpo-if-nro" class="text-warning">...</strong>,
+                                        procesado: <strong id="cuerpo-detenido-nombre" class="text-warning">...</strong>,
+                                        por el delito <strong id="cuerpo-delito-nombre" class="text-warning">...</strong>.
+                                    </p>
+                                </div>
+
+                                <p class="mb-3">Atentamente.</p>
+                                <div style="height: 60px;"></div>
+
+                                <div class="row mb-2">
+                                    <label class="col-sm-3 col-form-label">Agente:</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="oficio-agente-nombre" spellcheck="true">
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-3 col-form-label">Grado:</label>
+                                    <div class="col-sm-9 d-flex align-items-center">
+                                        <select class="form-select" id="oficio-agente-grado">
+                                            <option value="">Seleccione un grado...</option>
+                                            <option value="POLICIA">POLICIA</option>
+                                            <option value="CABO SEGUNDO">CABO SEGUNDO</option>
+                                            <option value="CABO PRIMERO">CABO PRIMERO</option>
+                                            <option value="SARGENTO SEGUNDO">SARGENTO SEGUNDO</option>
+                                            <option value="SARGENTO PRIMERO">SARGENTO PRIMERO</option>
+                                        </select>
+                                        <span class="ms-2">DE POLICIA</span>
+                                    </div>
+                                </div>
+
+                                <p class="mt-3 mb-0">PERITO DE LA SECCIÓN DE DELITOS FLAGRANTES DE LA PJ-G-DMG-Z8.</p>
+                                <p class="my-1">Org./Dest.</p>
+                                <p class="my-1">CC/Archivo PJG.</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button id="btn-regresar-paso1" class="btn btn-outline-secondary btn-lg">
+                                <i class="fa-solid fa-arrow-left me-2"></i>
+                                Regresar
+                            </button>
+                            <button id="btn-continuar-paso3" class="btn btn-success btn-lg">
+                                Continuar al Paso 3
+                                <i class="fa-solid fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="wizard-step-3" class="d-none">
+                        <h3 class="mb-3">Paso 3: Cuerpo del Informe Pericial</h3>
+
+                        <div class="card bg-dark shadow-sm border-secondary">
+                            <div class="card-body p-4 oficio-form">
+
+                                <h4 class="text-warning mb-3">INFORME PERICIAL EN RECONOCIMIENTO DEL LUGAR DE LOS HECHOS</h4>
+
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Instrucción Fiscal:</label>
+                                        <input type="text" class="form-control" id="tabla-if-nro" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fecha del Informe:</label>
+                                        <input type="text" class="form-control" id="tabla-fecha-informe" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Informe Nº:</label>
+                                        <input type="text" class="form-control" id="tabla-informe-nro" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tipo de Delito:</label>
+                                        <input type="text" class="form-control" id="tabla-delito" readonly>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label">Lugar de los hechos:</label>
+                                        <input type="text" class="form-control" id="tabla-lugar-hechos" spellcheck="true">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fecha de aprehensión:</label>
+                                        <input type="text" class="form-control" id="tabla-fecha-aprehension" spellcheck="false">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Agente Fiscal:</label>
+                                        <input type="text" class="form-control" id="tabla-agente-fiscal" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Procesado:</label>
+                                        <input type="text" class="form-control" id="tabla-procesado" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Referente al Oficio:</label>
+                                        <input type="text" class="form-control" id="tabla-ref-oficio" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Perito:</label>
+                                        <input type="text" class="form-control" id="tabla-perito" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Código Reg:</label>
+                                        <input type="text" class="form-control" id="tabla-cod-reg" spellcheck="true">
+                                    </div>
+                                </div>
+
+                                <hr class="my-4 border-secondary">
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">1.- REFERENCIA:</label>
+                                    <div class="input-group">
+                                        <textarea class="form-control" id="informe-referencia" rows="4" spellcheck="true"></textarea>
+                                        <button class="btn btn-outline-primary" id="btn-generar-referencia">Generar</button>
+                                    </div>
+                                    <input type="text" class="form-control form-control-sm mt-2" id="informe-fecha-referencia">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">2.- OBJETO DE LA PERICIA:</label>
+                                    <div class="input-group">
+                                        <textarea class="form-control" id="informe-objeto" rows="3" spellcheck="true"></textarea>
+                                        <button class="btn btn-outline-primary" id="btn-generar-objeto">Generar</button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">3.- FUNDAMENTOS:</label>
+                                    <label class="form-label">3.1 Técnicos.</label>
+                                    <textarea class="form-control mb-3" id="informe-fundamentos-tecnicos" rows="4" spellcheck="true"></textarea>
+
+                                    <label class="form-label">3.2 Legales.</label>
+                                    <textarea class="form-control" id="informe-fundamentos-legales" rows="3" spellcheck="true"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">4.- RECONOCIMIENTO PERICIAL:</label>
+                                    <textarea class="form-control" id="informe-reconocimiento" rows="10" spellcheck="true"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">5.- CONCLUSIONES:</label>
+                                    <div class="input-group">
+                                        <textarea class="form-control" id="informe-conclusiones" rows="4" spellcheck="true"></textarea>
+                                        <button class="btn btn-outline-primary" id="btn-generar-conclusion">Generar</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button id="btn-regresar-paso2" class="btn btn-outline-secondary btn-lg">
+                                <i class="fa-solid fa-arrow-left me-2"></i>
+                                Regresar al Paso 2
+                            </button>
+                            <button id="btn-continuar-paso4" class="btn btn-success btn-lg">
+                                Continuar al Paso 4 (Fotos)
+                                <i class="fa-solid fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="wizard-step-4" class="d-none">
+                        <h3 class="mb-3">Paso 4: Fotos y Evidencias</h3>
+                        <p class="text-white-50">Añade las láminas ilustrativas.</p>
+
+                        <div class="mb-3">
+                            <button id="btn-agregar-lugar" class="btn btn-outline-primary">
+                                <i class="fa-solid fa-map-location-dot me-2"></i>Agregar Lugar (Lámina)
+                            </button>
+                        </div>
+
+                        <div id="laminas-container" class="mt-4"></div>
+
+                        <div class="d-flex justify-content-between flex-wrap gap-2 mt-4">
+                            <button id="btn-regresar-paso3" class="btn btn-outline-secondary btn-lg">
+                                <i class="fa-solid fa-arrow-left me-2"></i> Regresar
+                            </button>
+
+                            <button id="btn-guardar-y-subir-fotos" class="btn btn-success btn-lg">
+                                <i class="fa-solid fa-upload me-2"></i> Guardar y Subir Todo
+                            </button>
+
+                            <button id="btn-nuevo-informe" class="btn btn-outline-primary btn-lg d-none">
+                                <i class="fa-solid fa-plus-circle me-2"></i> Nuevo Informe
+                            </button>
+
+                            <button id="btn-imprimir-documento" class="btn btn-info btn-lg d-none">
+                                <i class="fa-solid fa-print me-2"></i> Imprimir PDF/WORD
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade p-4" id="buscar-pane" role="tabpanel">
+                    <h3 class="mb-3">Buscar Informes</h3>
+                    <form id="search-form" class="mb-4">
+                        <div class="input-group">
+                            <input type="text" id="search-term" class="form-control" placeholder="Buscar..." required>
+                            <button class="btn btn-primary">
+                                <i class="fa-solid fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="search-loader" class="text-center my-3 d-none">
+                        <div class="spinner-border text-primary"></div>
+                        <p class="mt-2">Buscando informes...</p>
+                    </div>
+
+                    <div id="search-results-container" style="display:none;" class="mt-4">
+                        <h4>Resultados</h4>
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped table-hover app-table">
+                                <thead>
+                                    <tr>
+                                        <th>IF</th>
+                                        <th>N° Informe</th>
+                                        <th>Detenido</th>
+                                        <th>Fecha</th>
+                                        <th>Creado Por</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="search-results-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade p-4" id="agendamiento-pane" role="tabpanel">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h3>Gestor de Agendamientos</h3>
+                        <button class="btn btn-success btn-lg" id="btn-nuevo-agendamiento" data-bs-toggle="modal" data-bs-target="#modal-agendamiento">
+                            <i class="fa-solid fa-plus me-2"></i>Nuevo Agendamiento
+                        </button>
+                    </div>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-7">
+                            <div class="card bg-dark border-secondary shadow-sm mb-4">
+                                <div class="card-body">
+                                    <h5>Buscar Agendamiento</h5>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="agendamiento-search-input" placeholder="Buscar por IF...">
+                                        <button class="btn btn-primary" id="agendamiento-search-btn">
+                                            <i class="fa-solid fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card bg-dark border-secondary shadow-sm">
+                                <div class="card-header d-flex justify-content-between">
+                                    <span><i class="fa-solid fa-list-check me-2"></i> Agendamientos Próximos</span>
+                                    <button class="btn btn-outline-primary btn-sm" id="btn-mostrar-hoy">
+                                        <i class="fa-solid fa-calendar-day me-1"></i> Hoy
+                                    </button>
+                                </div>
+                                <div class="card-body" id="agendamiento-realtime-box" style="max-height: 400px; overflow-y: auto;">
+                                    <p class="text-white-50">Cargando...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5">
+                            <div class="card bg-dark border-secondary shadow-sm">
+                                <div class="card-body">
+                                    <h5>Calendario</h5>
+                                    <input type="date" class="form-control" id="agendamiento-calendario-input">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div> </div>
+
+    </div>
+
+    <div class="modal fade" id="modal-agendamiento" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Nuevo Agendamiento</h5>
+                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="form-agendamiento">
+
+                        <h6 class="text-warning">Paso 1: Buscar en Flagrancia</h6>
+
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="agendamiento-if-input" placeholder="Ingrese IF...">
+                            <button class="btn btn-primary" id="agendamiento-if-search-btn" type="button">Buscar</button>
+                        </div>
+
+                        <div id="agendamiento-if-search-loader" class="text-center d-none">
+                            <div class="spinner-border text-primary"></div>
+                        </div>
+
+                        <div id="agendamiento-if-search-results-card" class="d-none mt-3">
+                            <h6 class="text-success">Paso 2: Completar Datos</h6>
+
+                            <input type="hidden" id="agendamiento-if-nro-hidden">
+
+                            <div class="mb-3">
+                                <label>Delito:</label>
+                                <input type="text" class="form-control" id="agendamiento-delito" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Detenido:</label>
+                                <input type="text" class="form-control" id="agendamiento-detenido" readonly>
+                            </div>
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <label>Fiscal:</label>
+                                    <input type="text" class="form-control" id="agendamiento-fiscal" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Fiscalía:</label>
+                                    <input type="text" class="form-control" id="agendamiento-fiscalia" readonly>
+                                </div>
+                            </div>
+
+                            <hr class="border-secondary">
+
+                            <div class="row g-2">
+                                <div class="col-md-7">
+                                    <label>Fecha:</label>
+                                    <input type="date" class="form-control" id="agendamiento-fecha">
+                                </div>
+                                <div class="col-md-5">
+                                    <label>Hora:</label>
+                                    <input type="time" class="form-control" id="agendamiento-hora">
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="modal-footer border-secondary">
+                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-success" id="btn-guardar-agendamiento" disabled>Guardar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-reagendar" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Reagendar Audiencia</h5>
+                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <p>Actualizando agendamiento para IF: <strong id="reagendar-if-display">...</strong></p>
+
+                    <form id="form-reagendar">
+                        <input type="hidden" id="reagendar-id">
+
+                        <div class="mb-3">
+                            <label>Nueva Fecha:</label>
+                            <input type="date" class="form-control" id="reagendar-fecha" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Nueva Hora:</label>
+                            <input type="time" class="form-control" id="reagendar-hora" required>
+                        </div>
+
+                    </form>
+
+                </div>
+
+                <div class="modal-footer border-secondary">
+                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-success" id="btn-actualizar-reagenda">Guardar Cambios</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <template id="template-lamina">
+        <div class="card bg-dark shadow-sm border-secondary mb-3 lamina-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">LÁMINA ILUSTRATIVA DEL LUGAR N° <span class="lamina-numero">1</span></h5>
+                <button class="btn btn-danger btn-sm btn-eliminar-lamina"><i class="fa-solid fa-trash"></i></button>
+            </div>
+
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Subir fotos:</label>
+                    <input class="form-control lamina-file-input" type="file" multiple accept="image/*">
+                </div>
+
+                <div class="row g-2 lamina-fotos-container"></div>
+            </div>
+        </div>
+    </template>
+
+    <template id="template-foto">
+        <div class="col-md-4 foto-card">
+            <div class="card bg-dark-subtle border-secondary">
+
+                <img src="" class="card-img-top foto-preview" style="height:180px; object-fit:cover; cursor:pointer;">
+
+                <div class="card-body p-2">
+
+                    <input type="text" class="form-control form-control-sm foto-title-input mb-2" value="Fotografía N° 1">
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <button class="btn btn-primary btn-sm btn-editar-foto">
+                            <i class="fa-solid fa-pencil"></i> Editar
+                        </button>
+                        <button class="btn btn-danger btn-sm btn-eliminar-foto">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+
+                    <button class="btn btn-secondary btn-sm btn-agregar-descripcion w-100 mb-2">
+                        <i class="fa-solid fa-plus"></i> Agregar Descripción
+                    </button>
+
+                    <textarea class="form-control form-control-sm foto-descripcion d-none" rows="2"></textarea>
+
+                    <div class="foto-spinner d-none text-center mt-2">
+                        <div class="spinner-border spinner-border-sm"></div>
+                        <span class="ms-2">Comprimiendo...</span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <div class="modal fade" id="image-editor-modal" tabindex="-1">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content bg-dark text-white">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Imagen: <span id="editor-image-title"></span></h5>
+                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body p-0 d-flex flex-column">
+                    <div id="tui-image-editor" style="flex-grow:1;"></div>
+
+                    <div class="p-3 bg-secondary">
+                        <label class="form-label">Descripción:</label>
+                        <textarea class="form-control bg-dark text-white" id="editor-image-description" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-dark">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-primary" id="btn-save-edited-image">Guardar Cambios</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+<!-- Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Compresión de imágenes -->
+<script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+
+<!-- Toast UI Editor -->
+<script src="https://uicdn.toast.com/tui-code-snippet/v1.5.2/tui-code-snippet.min.js"></script>
+<script src="https://uicdn.toast.com/tui.color-picker/v2.2.6/tui-color-picker.min.js"></script>
+<script src="https://uicdn.toast.com/tui-image-editor/v3.15.3/tui-image-editor.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<!-- SUNEDITOR JS (DEBE IR ANTES DEL WIZARD) -->
+<script src="https://unpkg.com/suneditor@2.46.0/dist/suneditor.min.js"></script>
+<script src="https://unpkg.com/suneditor@2.46.0/src/lang/es.js"></script>
+
+<!-- Resto de scripts -->
+<script src="js/photo-editor.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/api.js"></script>
+<script src="js/fotos.js"></script>
+
+<!-- ESTOS DOS DEBEN IR AL FINAL -->
+<script src="js/wizard.js"></script>
+<script src="js/app.js"></script>
+
+
+</body>
+</html>
