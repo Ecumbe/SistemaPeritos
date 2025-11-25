@@ -180,7 +180,7 @@
       buttonList: toolbarOptions,
       mode: 'classic',
       lang: (window.SUNEDITOR_LANG && window.SUNEDITOR_LANG['es']) ? window.SUNEDITOR_LANG['es'] : undefined,
-     //- iframeAttributes: { style: 'background-color: #1a202c; color: #e2e8f0; font-family: Arial, sans-serif; font-size: 13.5px;' },---
+      iframeAttributes: { style: 'background-color: #ffffff; color: #111111; font-family: Arial, sans-serif; font-size: 13.5px;' },
       icons: {
         bold: '<i class="fa-solid fa-bold"></i>',
         underline: '<i class="fa-solid fa-underline"></i>',
@@ -1514,4 +1514,5 @@ window.cargarAgendamientosDeHoy = function() {
     if(btnHoy) btnHoy.click();
 
 };
+
 
