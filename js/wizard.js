@@ -191,12 +191,35 @@
     };
 
     // --- EL TRUCO PARA ACTIVAR ORTOGRAFÍA EN SUNEDITOR ---
-    const enableSpellCheck = (editorInstance) => {
-      if (editorInstance && editorInstance.core && editorInstance.core.context && editorInstance.core.context.element.wysiwyg) {
-        editorInstance.core.context.element.wysiwyg.setAttribute('spellcheck', 'true');
-        editorInstance.core.context.element.wysiwyg.setAttribute('lang', 'es');
+const enableSpellCheck = (editorInstance) => {
+  if (
+    editorInstance &&
+    editorInstance.core &&
+    editorInstance.core.context &&
+    editorInstance.core.context.element
+  ) {
+    // --- DIV editable interno ---
+    const editable = editorInstance.core.context.element.wysiwyg;
+    if (editable) {
+      editable.setAttribute("spellcheck", "true");
+      editable.setAttribute("lang", "es");
+    }
+
+    // --- IFRAME (la parte importante) ---
+    setTimeout(() => {
+      const iframe = editorInstance.core.context.element.wysiwygFrame;
+      if (iframe) {
+        iframe.setAttribute("spellcheck", "true");
+        iframe.setAttribute("lang", "es");
+
+        if (iframe.contentDocument) {
+          iframe.contentDocument.documentElement.setAttribute("lang", "es");
+          iframe.contentDocument.documentElement.setAttribute("spellcheck", "true");
+        }
       }
-    };
+    }, 150); // Espera pequeña para que SunEditor termine de cargar
+  }
+};
 
     // 3. CREACIÓN
     try {
@@ -1489,4 +1512,5 @@ function abrirReagendar(id, ifNro, fecha, hora) {
 window.cargarAgendamientosDeHoy = function() {
     const btnHoy = document.getElementById("btn-mostrar-hoy");
     if(btnHoy) btnHoy.click();
+
 };
