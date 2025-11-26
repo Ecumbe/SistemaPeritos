@@ -148,106 +148,97 @@
   /* ==========================================================
      SUNEDITOR (Rich Text) - CON ESPERA AUTOMÁTICA & FIX ORTOGRAFÍA
   ========================================================== */
-  function initRichTextEditors() {
-    const Sun = window.SUNEDITOR || window.SunEditor;
-    // 1. VERIFICACIÓN DE SEGURIDAD Y REINTENTO
-    if (typeof Sun === 'undefined') {
-      if (!window.sunEditorRetries) window.sunEditorRetries = 0;
-      window.sunEditorRetries++;
+  // REEMPLAZAR TODA LA FUNCIÓN initRichTextEditors en wizard.js
 
-      if (window.sunEditorRetries < 20) {
-        console.warn(`⏳ SunEditor aún no carga. Reintentando (${window.sunEditorRetries})...`);
-        setTimeout(initRichTextEditors, 100);
-        return;
-      } else {
-        console.error("⚠️ Error Crítico: SunEditor no cargó después de varios intentos.");
-        return;
-      }
+function initRichTextEditors() {
+    const Sun = window.SUNEDITOR || window.SunEditor;
+    if (typeof Sun === 'undefined') {
+        if (!window.sunEditorRetries) window.sunEditorRetries = 0;
+        window.sunEditorRetries++;
+        if (window.sunEditorRetries < 20) {
+            setTimeout(initRichTextEditors, 100);
+            return;
+        } else {
+            console.error("⚠️ SunEditor no cargó.");
+            return;
+        }
     }
 
-    // 2. CONFIGURACIÓN
     const toolbarOptions = [
-      ['bold', 'underline', 'italic'],
-      ['list'],
-      ['removeFormat'],
-      ['undo', 'redo']
+        ['bold', 'underline', 'italic'],
+        ['list'],
+        ['removeFormat'],
+        ['undo', 'redo']
     ];
 
-    const commonConfig = {
-      width: '100%',
-      height: 'auto',
-      minHeight: '150px',
-      buttonList: toolbarOptions,
-      mode: 'classic',
-      lang: (window.SUNEDITOR_LANG && window.SUNEDITOR_LANG['es']) ? window.SUNEDITOR_LANG['es'] : undefined,
-      iframeAttributes: { 
-      style: 'background-color: #ffffff; color: #111111; font-family: Arial, sans-serif; font-size: 13.5px;',
-      lang: 'es',         // <--- AGREGAR ESTA LÍNEA
-      spellcheck: 'true'  // <--- AGREGAR ESTA LÍNEA
-      icons: {
-        bold: '<i class="fa-solid fa-bold"></i>',
-        underline: '<i class="fa-solid fa-underline"></i>',
-        italic: '<i class="fa-solid fa-italic"></i>',
-        list_number: '<i class="fa-solid fa-list-ol"></i>',
-        list_bullets: '<i class="fa-solid fa-list-ul"></i>'
-      }
+    // ESTA ES LA CLAVE: Función que fuerza la ortografía al cargar
+    const forceSpellCheck = (editor) => {
+        editor.onload = (core, reload) => {
+            // 1. Acceder al elemento editable (el <body> del iframe)
+            const editable = core.context.element.wysiwyg;
+            
+            // 2. Inyectar atributos a la fuerza
+            editable.setAttribute('spellcheck', 'true');
+            editable.setAttribute('lang', 'es');
+            
+            // 3. Acceder al Iframe padre y forzar también
+            const iframe = core.context.element.wysiwygFrame;
+            if(iframe) {
+                iframe.setAttribute('spellcheck', 'true'); 
+            }
+
+            // 4. EL TRUCO FINAL: Poner el foco momentáneamente para despertar al navegador
+            // Esto obliga a Chrome/Edge a escanear el texto
+            try { core.focus(); } catch(e) {}
+            
+            console.log("✅ Corrector FORZADO en:", core.context.element.originTextarea.id);
+        };
     };
 
-    // --- EL TRUCO PARA ACTIVAR ORTOGRAFÍA EN SUNEDITOR ---
-const enableSpellCheck = (editorInstance) => {
-  if (
-    editorInstance &&
-    editorInstance.core &&
-    editorInstance.core.context &&
-    editorInstance.core.context.element
-  ) {
-    // --- DIV editable interno ---
-    const editable = editorInstance.core.context.element.wysiwyg;
-    if (editable) {
-      editable.setAttribute("spellcheck", "true");
-      editable.setAttribute("lang", "es");
-    }
-
-    // --- IFRAME (la parte importante) ---
-    setTimeout(() => {
-      const iframe = editorInstance.core.context.element.wysiwygFrame;
-      if (iframe) {
-        iframe.setAttribute("spellcheck", "true");
-        iframe.setAttribute("lang", "es");
-
-        if (iframe.contentDocument) {
-          iframe.contentDocument.documentElement.setAttribute("lang", "es");
-          iframe.contentDocument.documentElement.setAttribute("spellcheck", "true");
+    const commonConfig = {
+        width: '100%',
+        height: 'auto',
+        minHeight: '150px',
+        buttonList: toolbarOptions,
+        mode: 'classic',
+        // Aunque lo ponemos aquí, el onload de arriba es el que asegura que funcione
+        iframeAttributes: { 
+            style: 'background-color: #ffffff; color: #111111; font-family: Arial, sans-serif; font-size: 13.5px;',
+            lang: 'es',
+            spellcheck: 'true'
+        },
+        icons: {
+            bold: '<i class="fa-solid fa-bold"></i>',
+            underline: '<i class="fa-solid fa-underline"></i>',
+            italic: '<i class="fa-solid fa-italic"></i>',
+            list_number: '<i class="fa-solid fa-list-ol"></i>',
+            list_bullets: '<i class="fa-solid fa-list-ul"></i>'
         }
-      }
-    }, 150); // Espera pequeña para que SunEditor termine de cargar
-  }
-};
+    };
 
-    // 3. CREACIÓN
     try {
-      const createIfExist = (id, config) => {
-        const el = document.getElementById(id);
-        if (el && el.tagName === 'TEXTAREA' && !el.style.display.includes('none')) {
-          const editor = Sun.create(id, config);
-          editor.onChange = () => { if (window.Wizard) window.Wizard.showNavButtons(); };
-          editor.onload = () => enableSpellCheck(editor);
-          return editor;
-        }
-        return null;
-      };
+        const createIfExist = (id, config) => {
+            const el = document.getElementById(id);
+            if (el && el.tagName === 'TEXTAREA' && !el.style.display.includes('none')) {
+                const editor = Sun.create(id, config);
+                // APLICAMOS LA FUERZA BRUTA AQUÍ
+                forceSpellCheck(editor);
+                
+                editor.onChange = () => { if (window.Wizard) window.Wizard.showNavButtons(); };
+                return editor;
+            }
+            return null;
+        };
 
-      if (!editorReferencia) editorReferencia = createIfExist('informe-referencia', commonConfig);
-      if (!editorObjeto) editorObjeto = createIfExist('informe-objeto', { ...commonConfig, minHeight: '100px' });
-      if (!editorReconocimiento) editorReconocimiento = createIfExist('informe-reconocimiento', { ...commonConfig, minHeight: '300px' });
-      if (!editorConclusiones) editorConclusiones = createIfExist('informe-conclusiones', { ...commonConfig, minHeight: '150px' });
-
-      console.log("✅ SunEditor inicializado correctamente.");
+        if (!editorReferencia) editorReferencia = createIfExist('informe-referencia', commonConfig);
+        if (!editorObjeto) editorObjeto = createIfExist('informe-objeto', { ...commonConfig, minHeight: '100px' });
+        if (!editorReconocimiento) editorReconocimiento = createIfExist('informe-reconocimiento', { ...commonConfig, minHeight: '300px' });
+        if (!editorConclusiones) editorConclusiones = createIfExist('informe-conclusiones', { ...commonConfig, minHeight: '150px' });
 
     } catch (e) {
-      console.error("Error al iniciar SunEditor:", e);
+        console.error("Error al iniciar SunEditor:", e);
     }
-  }
+}
 
   /* ==========================================================
      STEPPER & NAVEGACIÓN (CON FIX ORTOGRAFÍA EN GITHUB)
@@ -1517,6 +1508,7 @@ window.cargarAgendamientosDeHoy = function() {
     if(btnHoy) btnHoy.click();
 
 };
+
 
 
 
