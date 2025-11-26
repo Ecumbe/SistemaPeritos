@@ -208,9 +208,11 @@
         ],
         lang: (window.SUNEDITOR_LANG && window.SUNEDITOR_LANG['es']) ? window.SUNEDITOR_LANG['es'] : undefined,
         // Estilo oscuro integrado
-        iframeAttributes: { 
-            style: 'background-color: #1f2937; color: #e2e8f0; font-family: Arial, sans-serif; font-size: 13.5px;' 
-        },
+       iframeAttributes: { 
+        style: 'background-color: #1f2937; color: #e2e8f0; font-family: Arial, sans-serif; font-size: 13.5px;',
+        lang: 'es',         // <--- AGREGAR ESTA LÍNEA
+        spellcheck: 'true'  // <--- AGREGAR ESTA LÍNEA
+    },
         icons: {
             bold: '<i class="fa-solid fa-bold"></i>',
             underline: '<i class="fa-solid fa-underline"></i>',
@@ -333,4 +335,5 @@
       };
     }
   };
+
 })();
