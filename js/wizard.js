@@ -195,40 +195,52 @@ function initRichTextEditors() {
         };
     };
 
-    const commonConfig = {
-        width: '100%',
-        height: 'auto',
-        minHeight: '150px',
-        buttonList: toolbarOptions,
-        mode: 'classic',
-        // Aunque lo ponemos aquí, el onload de arriba es el que asegura que funcione
-        iframeAttributes: { 
-            style: 'background-color: #ffffff; color: #111111; font-family: Arial, sans-serif; font-size: 13.5px;',
-            lang: 'es',
-            spellcheck: 'true'
-        },
-        icons: {
-            bold: '<i class="fa-solid fa-bold"></i>',
-            underline: '<i class="fa-solid fa-underline"></i>',
-            italic: '<i class="fa-solid fa-italic"></i>',
-            list_number: '<i class="fa-solid fa-list-ol"></i>',
-            list_bullets: '<i class="fa-solid fa-list-ul"></i>'
+const commonConfig = {
+    width: '100%',
+    height: 'auto',
+    minHeight: '150px',
+    buttonList: toolbarOptions,
+    mode: 'classic',
+    // 1. Atributos base para el iframe
+    iframeAttributes: { 
+        style: 'background-color: #ffffff; color: #111111; font-family: Arial, sans-serif; font-size: 13.5px;',
+        lang: 'es',
+        spellcheck: 'true'
+    },
+    // 2. Iconos
+    icons: {
+        bold: '<i class="fa-solid fa-bold"></i>',
+        underline: '<i class="fa-solid fa-underline"></i>',
+        italic: '<i class="fa-solid fa-italic"></i>',
+        list_number: '<i class="fa-solid fa-list-ol"></i>',
+        list_bullets: '<i class="fa-solid fa-list-ul"></i>'
+    },
+    // 3. LA SOLUCIÓN: Definimos la función onload AQUÍ DENTRO
+    // Esto garantiza que se ejecute en el momento exacto
+    onload: function(core) {
+        try {
+            const editable = core.context.element.wysiwyg;
+            editable.setAttribute('spellcheck', 'true');
+            editable.setAttribute('lang', 'es');
+            core.focus(); // Truco para despertar al navegador
+            console.log("✅ Corrector Activado desde Configuración (Wizard)");
+        } catch (e) {
+            console.error("Error activando corrector:", e);
         }
-    };
+    }
+};
 
-    try {
-        const createIfExist = (id, config) => {
-            const el = document.getElementById(id);
-            if (el && el.tagName === 'TEXTAREA' && !el.style.display.includes('none')) {
-                const editor = Sun.create(id, config);
-                // APLICAMOS LA FUERZA BRUTA AQUÍ
-                forceSpellCheck(editor);
-                
-                editor.onChange = () => { if (window.Wizard) window.Wizard.showNavButtons(); };
-                return editor;
-            }
-            return null;
-        };
+try {
+    const createIfExist = (id, config) => {
+        const el = document.getElementById(id);
+        if (el && el.tagName === 'TEXTAREA' && !el.style.display.includes('none')) {
+            const editor = Sun.create(id, config);
+            // forceSpellCheck(editor);  <-- BORRA ESTA LÍNEA, YA NO HACE FALTA
+            editor.onChange = () => { if (window.Wizard) window.Wizard.showNavButtons(); };
+            return editor;
+        }
+        return null;
+    };
 
         if (!editorReferencia) editorReferencia = createIfExist('informe-referencia', commonConfig);
         if (!editorObjeto) editorObjeto = createIfExist('informe-objeto', { ...commonConfig, minHeight: '100px' });
@@ -1507,6 +1519,7 @@ window.cargarAgendamientosDeHoy = function() {
     if(btnHoy) btnHoy.click();
 
 };
+
 
 
 
