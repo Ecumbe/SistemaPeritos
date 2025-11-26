@@ -90,7 +90,11 @@ document.addEventListener("DOMContentLoaded", () => {
             buttonList: toolbarOptions,
             mode: 'classic',
             lang: SUNEDITOR_LANG['es'],
-            iframeAttributes: { style: 'background-color: #1a202c; color: #e2e8f0; font-family: Arial, sans-serif; font-size: 13.5px;' },
+            iframeAttributes: { 
+            style: 'background-color: #1a202c; color: #e2e8f0; font-family: Arial, sans-serif; font-size: 13.5px;',
+            lang: 'es',         // <--- AGREGAR ESTA LÍNEA
+            spellcheck: 'true'  // <--- AGREGAR ESTA LÍNEA
+            },
             icons: {
                 bold: '<i class="fa-solid fa-bold"></i>',
                 underline: '<i class="fa-solid fa-underline"></i>',
