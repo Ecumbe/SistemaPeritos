@@ -195,52 +195,52 @@ function initRichTextEditors() {
         };
     };
 
-const commonConfig = {
-    width: '100%',
-    height: 'auto',
-    minHeight: '150px',
-    buttonList: toolbarOptions,
-    mode: 'classic',
-    // 1. Atributos base para el iframe
-    iframeAttributes: { 
-        style: 'background-color: #ffffff; color: #111111; font-family: Arial, sans-serif; font-size: 13.5px;',
-        lang: 'es',
-        spellcheck: 'true'
-    },
-    // 2. Iconos
-    icons: {
-        bold: '<i class="fa-solid fa-bold"></i>',
-        underline: '<i class="fa-solid fa-underline"></i>',
-        italic: '<i class="fa-solid fa-italic"></i>',
-        list_number: '<i class="fa-solid fa-list-ol"></i>',
-        list_bullets: '<i class="fa-solid fa-list-ul"></i>'
-    },
-    // 3. LA SOLUCIÓN: Definimos la función onload AQUÍ DENTRO
-    // Esto garantiza que se ejecute en el momento exacto
-    onload: function(core) {
-        try {
-            const editable = core.context.element.wysiwyg;
-            editable.setAttribute('spellcheck', 'true');
-            editable.setAttribute('lang', 'es');
-            core.focus(); // Truco para despertar al navegador
-            console.log("✅ Corrector Activado desde Configuración (Wizard)");
-        } catch (e) {
-            console.error("Error activando corrector:", e);
+// 1. ESTO ES NUEVO: La configuración ahora incluye 'onload' con la fuerza bruta
+    const commonConfig = {
+        width: '100%',
+        height: 'auto',
+        minHeight: '150px',
+        buttonList: toolbarOptions,
+        mode: 'classic',
+        iframeAttributes: {
+            style: 'background-color: #ffffff; color: #111111; font-family: Arial, sans-serif; font-size: 13.5px;',
+            lang: 'es',
+            spellcheck: 'true'
+        },
+        // AGREGADO: Esto se ejecuta automáticamente al terminar de cargar
+        onload: function(core) {
+            try {
+                const editable = core.context.element.wysiwyg;
+                editable.setAttribute('spellcheck', 'true');
+                editable.setAttribute('lang', 'es');
+                // AGREGADO: El truco del foco
+                setTimeout(() => { try { core.focus(); } catch(e){} }, 500);
+                console.log("🔥 FUERZA BRUTA: Corrector activado en", core.context.element.originTextarea.id);
+            } catch (err) { }
+        },
+        icons: {
+            bold: '<i class="fa-solid fa-bold"></i>',
+            underline: '<i class="fa-solid fa-underline"></i>',
+            italic: '<i class="fa-solid fa-italic"></i>',
+            list_number: '<i class="fa-solid fa-list-ol"></i>',
+            list_bullets: '<i class="fa-solid fa-list-ul"></i>'
         }
-    }
-};
-
-try {
-    const createIfExist = (id, config) => {
-        const el = document.getElementById(id);
-        if (el && el.tagName === 'TEXTAREA' && !el.style.display.includes('none')) {
-            const editor = Sun.create(id, config);
-            // forceSpellCheck(editor);  <-- BORRA ESTA LÍNEA, YA NO HACE FALTA
-            editor.onChange = () => { if (window.Wizard) window.Wizard.showNavButtons(); };
-            return editor;
-        }
-        return null;
     };
+
+    try {
+        const createIfExist = (id, config) => {
+            const el = document.getElementById(id);
+            if (el && el.tagName === 'TEXTAREA' && !el.style.display.includes('none')) {
+                // AGREGADO: Limpieza de instancias previas para evitar duplicados
+                try { if(Sun.getInstance(id)) Sun.getInstance(id).destroy(); } catch(e){}
+                
+                const editor = Sun.create(id, config);
+                // ELIMINADO: Ya no llamamos a forceSpellCheck(editor) aquí
+                editor.onChange = () => { if (window.Wizard) window.Wizard.showNavButtons(); };
+                return editor;
+            }
+            return null;
+        };
 
         if (!editorReferencia) editorReferencia = createIfExist('informe-referencia', commonConfig);
         if (!editorObjeto) editorObjeto = createIfExist('informe-objeto', { ...commonConfig, minHeight: '100px' });
@@ -297,22 +297,6 @@ try {
       autoSaveDraft();
     }
 
-    // --- [MEJORA 3: FIX ORTOGRAFÍA AL NAVEGAR] ---
-    // Esto soluciona el problema en GitHub Pages donde los campos ocultos pierden el spellcheck
-    setTimeout(() => {
-        const inputsVisibles = targetDiv.querySelectorAll('textarea, input[type="text"]');
-        inputsVisibles.forEach(input => {
-            // Truco: Apagar y prender el atributo fuerza al navegador a re-escanear
-            input.setAttribute('spellcheck', 'false'); 
-            input.setAttribute('lang', 'es');
-            
-            setTimeout(() => {
-                input.setAttribute('spellcheck', 'true');
-            }, 50);
-        });
-        console.log(`✅ Corrector reactivado para paso ${stepNumber}`);
-    }, 300); 
-  }
 
   function inicializarEventosStepper() {
     if (!wizardStepper) return;
@@ -1519,6 +1503,7 @@ window.cargarAgendamientosDeHoy = function() {
     if(btnHoy) btnHoy.click();
 
 };
+
 
 
 
